@@ -1,74 +1,30 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import { supabase } from './supabase'
+import { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
 
-  const fetchProfile = useCallback(async (uid) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', uid)
-      .maybeSingle()
-    setProfile(data)
-  }, [])
-
-  useEffect(() => {
-    let mounted = true
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false))
-      } else {
-        setLoading(false)
-      }
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id)
-      } else {
-        setProfile(null)
-      }
-    })
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [fetchProfile])
-
-  const signUp = async (email, password, fullName, role = 'customer') => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName, role } },
-    })
-    if (error) throw error
-    return data
+  const signIn = async (email) => {
+    const mockUser = { id: 'mock-user-1', email }
+    const mockProfile = { full_name: 'Demo User', role: 'customer', phone: '' }
+    setUser(mockUser)
+    setProfile(mockProfile)
+    return mockUser
   }
 
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-    return data
+  const signUp = async (email, _password, fullName, role = 'customer') => {
+    const mockUser = { id: 'mock-user-1', email }
+    setUser(mockUser)
+    setProfile({ full_name: fullName, role, phone: '' })
+    return mockUser
   }
 
-  const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setProfile(null)
-  }
+  const signOut = () => { setUser(null); setProfile(null) }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, fetchProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading: false, signIn, signUp, signOut, fetchProfile: () => {} }}>
       {children}
     </AuthContext.Provider>
   )

@@ -17,14 +17,11 @@ export default function Topbar() {
 
   return (
     <div className="topbar">
-      <div className="topbar-title">{title}</div>
-      <div className="topbar-actions">
-        <span className="topbar-badge">Mock Data Mode</span>
-        <button className="btn btn-ghost btn-sm" style={{ position: 'relative' }}>
-          <Bell size={18} />
-          <span style={{ position: 'absolute', top: 2, right: 4, width: 8, height: 8, background: 'var(--error)', borderRadius: '50%' }} />
-        </button>
-      </div>
+      <span className="topbar-title">{title}</span>
+      <button className="btn btn-ghost btn-sm" style={{ position: 'relative' }}>
+        <Bell size={18} />
+        <span style={{ position: 'absolute', top: 2, right: 4, width: 7, height: 7, background: 'var(--error)', borderRadius: '50%' }} />
+      </button>
     </div>
   )
 }

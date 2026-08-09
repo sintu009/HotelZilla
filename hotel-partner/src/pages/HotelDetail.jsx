@@ -12,14 +12,14 @@ export default function HotelDetail() {
   const [tab, setTab] = useState('overview')
 
   const hotel = HOTELS.find(h => h.id === id)
-  if (!hotel) return <div className="empty-state"><h3>Hotel not found</h3><button className="btn btn-primary btn-sm" onClick={() => navigate('/hotels')} style={{ marginTop: 12 }}>Back to Hotels</button></div>
+  if (!hotel) return <div className="empty-state"><h3>Hotel not found</h3><button className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard/hotels')} style={{ marginTop: 12 }}>Back to Hotels</button></div>
 
   const hotelRooms = ROOMS.filter(r => r.hotel_id === id)
   const hotelReviews = REVIEWS.filter(r => r.hotel_id === id)
 
   return (
     <div>
-      <button className="btn btn-ghost btn-sm" onClick={() => navigate('/hotels')} style={{ marginBottom: 16 }}>
+      <button className="btn btn-ghost btn-sm" onClick={() => navigate('/dashboard/hotels')} style={{ marginBottom: 16 }}>
         <ArrowLeft size={14} /> Back to Hotels
       </button>
 

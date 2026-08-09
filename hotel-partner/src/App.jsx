@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
+import PublicHeader from './components/PublicHeader'
+import PublicFooter from './components/PublicFooter'
 import Dashboard from './pages/Dashboard'
 import MyHotels from './pages/MyHotels'
 import HotelDetail from './pages/HotelDetail'
@@ -10,9 +12,13 @@ import Rooms from './pages/Rooms'
 import Reviews from './pages/Reviews'
 import Earnings from './pages/Earnings'
 import Settings from './pages/Settings'
+import PublicLanding from './pages/public/PublicLanding'
+import PublicHotelListing from './pages/public/PublicHotelListing'
+import PublicHotelDetail from './pages/public/PublicHotelDetail'
+import PublicBooking from './pages/public/PublicBooking'
 import { WHITE_LABEL, applyWhiteLabel } from './lib/whiteLabel'
 
-function Layout({ children }) {
+function DashboardLayout({ children }) {
   return (
     <div className="partner-layout">
       <Sidebar />
@@ -24,24 +30,34 @@ function Layout({ children }) {
   )
 }
 
+function PublicLayout({ children }) {
+  return (
+    <>
+      <PublicHeader />
+      <main style={{ minHeight: '60vh' }}>{children}</main>
+      <PublicFooter />
+    </>
+  )
+}
+
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/*" element={
-        <Layout>
-          <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/hotels" element={<MyHotels />} />
-            <Route path="/hotels/:id" element={<HotelDetail />} />
-            <Route path="/bookings" element={<Bookings />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/earnings" element={<Earnings />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </Layout>
-      } />
+      {/* Public website */}
+      <Route path="/" element={<PublicLayout><PublicLanding /></PublicLayout>} />
+      <Route path="/hotels" element={<PublicLayout><PublicHotelListing /></PublicLayout>} />
+      <Route path="/hotels/:id" element={<PublicLayout><PublicHotelDetail /></PublicLayout>} />
+      <Route path="/booking" element={<PublicLayout><PublicBooking /></PublicLayout>} />
+
+      {/* Partner dashboard */}
+      <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+      <Route path="/dashboard/hotels" element={<DashboardLayout><MyHotels /></DashboardLayout>} />
+      <Route path="/dashboard/hotels/:id" element={<DashboardLayout><HotelDetail /></DashboardLayout>} />
+      <Route path="/dashboard/bookings" element={<DashboardLayout><Bookings /></DashboardLayout>} />
+      <Route path="/dashboard/rooms" element={<DashboardLayout><Rooms /></DashboardLayout>} />
+      <Route path="/dashboard/reviews" element={<DashboardLayout><Reviews /></DashboardLayout>} />
+      <Route path="/dashboard/earnings" element={<DashboardLayout><Earnings /></DashboardLayout>} />
+      <Route path="/dashboard/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
     </Routes>
   )
 }

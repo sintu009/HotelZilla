@@ -111,7 +111,7 @@ export default function Dashboard() {
       <div className="card">
         <div className="card-header">
           <h3>Recent Bookings</h3>
-          <a href="/bookings" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)' }}>View all →</a>
+          <a href="/dashboard/bookings" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)' }}>View all →</a>
         </div>
         <div className="table-wrapper">
           <table className="table">

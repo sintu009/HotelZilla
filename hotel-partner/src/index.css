@@ -289,3 +289,179 @@ h4 { font-size: 0.9rem; }
 @keyframes slideIn { from { transform: translateX(110%); } to { transform: translateX(0); } }
 .toast.success { border-left: 4px solid var(--success); }
 .toast.error { border-left: 4px solid var(--error); }
+
+/* ── Public Website ── */
+.public-page { overflow: hidden; background: #fff; }
+.public-container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+/* Public Header */
+.public-header { background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+.public-header .public-container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.public-logo { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 800; color: var(--text); }
+.public-logo-icon { width: 38px; height: 38px; border-radius: var(--radius); background: var(--brand-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800; flex-shrink: 0; }
+.public-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+.public-logo-text small { font-size: 0.65rem; font-weight: 500; color: var(--text-secondary); }
+.public-nav { display: flex; align-items: center; gap: 28px; }
+.public-nav a { font-size: 0.88rem; font-weight: 600; color: var(--text-secondary); transition: color 0.15s; }
+.public-nav a:hover { color: var(--primary); }
+.public-header-actions { display: flex; align-items: center; gap: 12px; }
+.public-menu-toggle { display: none; color: var(--text); }
+@media (max-width: 768px) {
+  .public-nav { display: none; position: fixed; top: 64px; left: 0; right: 0; background: #fff; flex-direction: column; padding: 16px 24px; border-bottom: 1px solid var(--border); gap: 16px; }
+  .public-nav.open { display: flex; }
+  .public-menu-toggle { display: flex; }
+}
+
+/* Public Hero */
+.public-hero { position: relative; min-height: 438px; display: flex; align-items: flex-end; justify-content: center; background: #dcefe8; overflow: visible; }
+.public-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.public-hero-content { position: relative; z-index: 2; width: min(1180px, 100%); padding: 0 24px; }
+
+/* Public Search Bar */
+.public-search-bar { transform: translateY(42px); background: #fff; border-radius: 18px; box-shadow: 0 12px 28px rgba(14, 77, 66, 0.18); padding: 16px 18px; display: flex; gap: 0; align-items: center; min-height: 92px; }
+.public-search-field { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 0 20px; border-right: 1px solid #d8dddc; }
+.public-search-field:first-child { flex: 1.35; }
+.public-search-field label { color: #87908d; font-weight: 500; font-size: 0.72rem; margin: 0 0 2px; display: block; }
+.public-search-field input { width: 100%; border: 0; outline: 0; padding: 0; color: #424846; background: transparent; font-size: 0.95rem; }
+.public-search-field input::placeholder { color: #a8aeac; }
+.public-search-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 42px; width: 42px; height: 42px; border-radius: 50%; background: #f0f2f1; color: #747d79; }
+.public-search-value { color: #424846; font-size: 0.95rem; white-space: nowrap; }
+.public-search-submit { width: 56px; height: 56px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 56px; margin-left: 18px; border-radius: 14px; color: #fff; background: var(--primary); transition: transform 0.2s, background 0.2s; }
+.public-search-submit:hover { background: var(--primary-dark); transform: scale(1.04); }
+@media (max-width: 768px) {
+  .public-hero { min-height: 360px; }
+  .public-hero-bg { background-position: 58% center; }
+  .public-hero-content { padding: 0 16px; }
+  .public-search-bar { transform: translateY(32px); padding: 12px; min-height: auto; flex-direction: column; align-items: stretch; gap: 4px; }
+  .public-search-field { width: 100%; border-right: 0; border-bottom: 1px solid #e5e9e7; padding: 10px 4px; }
+  .public-search-submit { width: 100%; height: 46px; margin: 8px 0 0; border-radius: 10px; }
+}
+
+/* City Pills */
+.public-city-pills { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding-top: 72px; padding-bottom: 28px; }
+.public-city-pills button { padding: 9px 12px; color: #4d5653; background: #fff; border: 1px solid #e0e6e4; border-radius: 10px; font-size: 0.82rem; transition: all 0.2s; }
+.public-city-pills button:hover, .public-city-pills button.active { color: var(--primary-dark); background: var(--primary-light); border-color: var(--primary); }
+
+/* Member Banner */
+.public-member-banner { min-height: 90px; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 20px; padding: 18px 34px; border-radius: 14px; color: #fff; background: var(--brand-gradient); box-shadow: var(--shadow-md); }
+.public-member-copy { display: flex; align-items: center; gap: 16px; }
+.public-member-copy strong { display: block; font-size: 1.1rem; }
+.public-member-copy span { display: block; color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 2px; }
+.public-member-perks { color: rgba(255,255,255,0.85); font-size: 0.84rem; }
+.public-member-banner button { min-width: 120px; padding: 11px 20px; border-radius: 9px; color: var(--primary-dark); background: #fff; font-weight: 800; font-size: 0.8rem; transition: transform 0.2s; }
+.public-member-banner button:hover { transform: translateY(-2px); }
+@media (max-width: 768px) {
+  .public-city-pills { padding-top: 56px; gap: 8px; }
+  .public-member-banner { flex-direction: column; align-items: flex-start; padding: 22px; }
+  .public-member-perks { display: none; }
+  .public-member-banner button { width: 100%; }
+}
+
+/* Public Sections */
+.public-section { padding: 32px 24px; }
+.public-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.public-section-head h2 { font-size: 1.5rem; font-weight: 800; }
+.public-section-head p { font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px; }
+.public-section-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+.public-section-subtitle { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 24px; }
+
+/* Hotel Grid */
+.public-hotel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+@media (max-width: 1024px) { .public-hotel-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .public-hotel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .public-hotel-grid { grid-template-columns: 1fr; } }
+.public-hotel-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; }
+.public-hotel-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.public-hotel-card img { width: 100%; height: 180px; object-fit: cover; }
+.public-hotel-body { padding: 14px; }
+.public-hotel-stars { display: flex; gap: 2px; color: #fbbf24; margin-bottom: 4px; }
+.public-hotel-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+.public-hotel-location { font-size: 0.78rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+.public-hotel-amenities { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.public-hotel-amenity { font-size: 0.68rem; padding: 3px 8px; background: var(--border-light); border-radius: var(--radius-sm); color: var(--text-secondary); }
+.public-hotel-footer { display: flex; align-items: center; justify-content: space-between; }
+.public-hotel-price { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+.public-hotel-price small { font-size: 0.72rem; font-weight: 500; color: var(--text-secondary); }
+
+/* Feature Grid */
+.public-feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+@media (max-width: 768px) { .public-feature-grid { grid-template-columns: repeat(2, 1fr); } }
+.public-feature-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; text-align: center; }
+.public-feature-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.public-feature-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+.public-feature-desc { font-size: 0.82rem; color: var(--text-secondary); }
+
+/* Review Grid */
+.public-review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 768px) { .public-review-grid { grid-template-columns: 1fr; } }
+.public-review-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; }
+.public-review-stars { display: flex; gap: 2px; color: #fbbf24; margin-bottom: 8px; }
+.public-review-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+.public-review-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+.public-review-author { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+
+/* Stats */
+.public-stats-row { display: flex; justify-content: space-around; padding: 40px 24px; gap: 20px; flex-wrap: wrap; }
+.public-stat { text-align: center; }
+.public-stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+.public-stat-label { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Public Footer */
+.public-footer { background: var(--sidebar); color: #fff; padding: 48px 0 24px; margin-top: 40px; }
+.public-footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 32px; }
+@media (max-width: 768px) { .public-footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; } }
+.public-footer-brand { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 800; margin-bottom: 12px; }
+.public-footer-desc { font-size: 0.85rem; color: rgba(255,255,255,0.6); max-width: 280px; line-height: 1.5; }
+.public-footer-col h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; color: rgba(255,255,255,0.9); }
+.public-footer-col a { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-bottom: 8px; transition: color 0.15s; }
+.public-footer-col a:hover { color: #fff; }
+.public-footer-bottom { padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; color: rgba(255,255,255,0.5); text-align: center; }
+
+/* Public Hotel Listing */
+.public-listing { padding-top: 24px; }
+.public-listing-search { padding-bottom: 20px; }
+.public-listing-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+@media (max-width: 768px) { .public-listing-layout { grid-template-columns: 1fr; } }
+.public-filter-sidebar { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; height: fit-content; }
+@media (max-width: 768px) { .public-filter-sidebar { display: none; } }
+.public-filter-group { margin-bottom: 20px; }
+.public-filter-group h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+.public-filter-option { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; cursor: pointer; }
+.public-listing-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.public-listing-results { font-size: 0.9rem; font-weight: 600; }
+
+/* Public Hotel Detail */
+.public-detail-gallery { margin-bottom: 24px; }
+.public-detail-gallery-main { border-radius: var(--radius-md); overflow: hidden; }
+.public-detail-gallery-main img { width: 100%; height: 360px; object-fit: cover; }
+.public-detail-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+@media (max-width: 768px) { .public-detail-grid { grid-template-columns: 1fr; } }
+.public-detail-info h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.public-detail-location { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; margin-bottom: 16px; }
+.public-detail-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.public-detail-amenity { display: flex; align-items: center; gap: 4px; font-size: 0.78rem; padding: 5px 10px; background: var(--border-light); border-radius: var(--radius-sm); color: var(--text-secondary); }
+.public-detail-section { margin-bottom: 28px; }
+.public-detail-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+.public-detail-section p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* Public Room Card */
+.public-room-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
+.public-room-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+.public-room-card-info { display: flex; gap: 16px; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; }
+.public-room-card-info span { display: flex; align-items: center; gap: 4px; }
+.public-room-card-amenities { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.public-room-card-footer { display: flex; align-items: center; justify-content: space-between; }
+
+/* Public Booking Card */
+.public-booking-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: sticky; top: 80px; }
+.public-booking-price { font-size: 1.4rem; font-weight: 800; }
+.public-booking-price small { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+.public-booking-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.public-booking-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-secondary); }
+.public-booking-row.total { font-weight: 800; font-size: 1rem; color: var(--text); padding-top: 8px; border-top: 1px solid var(--border); }
+
+/* Public Review (detail page) */
+.public-review-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.public-review-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand-gradient); color: #fff; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.public-review-name { font-size: 0.85rem; font-weight: 700; }
+.public-review-date { font-size: 0.75rem; color: var(--text-muted); }

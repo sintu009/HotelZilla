@@ -28,17 +28,17 @@ export default function Sidebar() {
 
       <nav className="sidebar-section">
         <div className="sidebar-section-label">Main</div>
-        <NavLink to="/dashboard" className={lc}><LayoutDashboard size={16} /> Dashboard</NavLink>
-        <NavLink to="/hotels" className={lc}><Building2 size={16} /> My Hotels</NavLink>
-        <NavLink to="/bookings" className={lc}><CalendarClock size={16} /> Bookings</NavLink>
-        <NavLink to="/rooms" className={lc}><BedDouble size={16} /> Rooms</NavLink>
+        <NavLink to="/dashboard" className={lc} end><LayoutDashboard size={16} /> Dashboard</NavLink>
+        <NavLink to="/dashboard/hotels" className={lc}><Building2 size={16} /> My Hotels</NavLink>
+        <NavLink to="/dashboard/bookings" className={lc}><CalendarClock size={16} /> Bookings</NavLink>
+        <NavLink to="/dashboard/rooms" className={lc}><BedDouble size={16} /> Rooms</NavLink>
 
         <div className="sidebar-section-label">Engagement</div>
-        <NavLink to="/reviews" className={lc}><Star size={16} /> Reviews</NavLink>
-        <NavLink to="/earnings" className={lc}><Wallet size={16} /> Earnings</NavLink>
+        <NavLink to="/dashboard/reviews" className={lc}><Star size={16} /> Reviews</NavLink>
+        <NavLink to="/dashboard/earnings" className={lc}><Wallet size={16} /> Earnings</NavLink>
 
         <div className="sidebar-section-label">Account</div>
-        <NavLink to="/settings" className={lc}><Settings size={16} /> Settings</NavLink>
+        <NavLink to="/dashboard/settings" className={lc}><Settings size={16} /> Settings</NavLink>
       </nav>
 
       <div className="sidebar-footer">

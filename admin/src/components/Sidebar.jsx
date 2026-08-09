@@ -1,11 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import {
-  LayoutDashboard, Users, Building2, CalendarClock, CreditCard,
-  RotateCcw, Star, Tag, Ticket, Percent, BarChart2, FileText,
-  Settings, ChevronDown, Home, Image, MapPin, DollarSign,
-  UserCircle, UserCheck, CheckCircle, Clock, XCircle, Hotel
-} from 'lucide-react'
+import { LayoutDashboard, Users, Building2, CalendarClock, CreditCard, RotateCcw, Star, Tag, Ticket, Percent, ChartBar as BarChart2, FileText, Settings, ChevronDown, Hop as Home, Image, MapPin, DollarSign, CircleUser as UserCircle, UserCheck, CircleCheck as CheckCircle, Clock, Circle as XCircle, Hotel, Palette } from 'lucide-react'
 import Logo from './Logo'
 
 const NAV = [
@@ -52,6 +47,7 @@ const NAV = [
     ],
   },
   { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/white-label', icon: Palette, label: 'White Labeling' },
 ]
 
 export default function Sidebar() {

@@ -136,6 +136,22 @@ export const CMS_OFFERS_CONTENT = {
   section_subtitle: 'Save big on your next stay',
 }
 
+export const WHITE_LABELS = [
+  { id: 'wl1', owner_id: 'o1', owner_name: 'Ravi Sharma', owner_email: 'ravi@example.com', brand_name: 'Grand Palace', brand_tagline: 'Partner Portal', logo_text: 'GP', logo_url: '', theme: 'emerald', portal_access: true, landing_page_enabled: false, landing_page_theme: 'emerald', custom_domain: '', configured_at: '2026-01-10T10:00:00Z' },
+  { id: 'wl2', owner_id: 'o2', owner_name: 'Priya Mehta', owner_email: 'priya@example.com', brand_name: 'Ocean View', brand_tagline: 'Hotel Partner', logo_text: 'OV', logo_url: '', theme: 'ocean', portal_access: true, landing_page_enabled: false, landing_page_theme: 'ocean', custom_domain: '', configured_at: '2026-01-15T10:00:00Z' },
+  { id: 'wl3', owner_id: 'o3', owner_name: 'Vikram Singh', owner_email: 'vikram@example.com', brand_name: 'Royal Heritage', brand_tagline: 'Partner Portal', logo_text: 'RH', logo_url: '', theme: 'emerald', portal_access: true, landing_page_enabled: false, landing_page_theme: 'emerald', custom_domain: '', configured_at: '2026-01-20T10:00:00Z' },
+  { id: 'wl4', owner_id: 'o4', owner_name: 'Anita Desai', owner_email: 'anita@example.com', brand_name: 'Mumbai Gateway', brand_tagline: 'Partner Portal', logo_text: 'MG', logo_url: '', theme: 'ocean', portal_access: true, landing_page_enabled: false, landing_page_theme: 'ocean', custom_domain: '', configured_at: '2026-02-01T10:00:00Z' },
+  { id: 'wl5', owner_id: 'o5', owner_name: 'Suresh Nair', owner_email: 'suresh@example.com', brand_name: 'Kerala Backwaters', brand_tagline: 'Partner Portal', logo_text: 'KB', logo_url: '', theme: 'emerald', portal_access: true, landing_page_enabled: false, landing_page_theme: 'emerald', custom_domain: '', configured_at: '2026-02-10T10:00:00Z' },
+  { id: 'wl6', owner_id: 'o6', owner_name: 'Arun Pillai', owner_email: 'arun@example.com', brand_name: 'Sunset Bay', brand_tagline: 'Partner Portal', logo_text: 'SB', logo_url: '', theme: 'ocean', portal_access: false, landing_page_enabled: false, landing_page_theme: 'ocean', custom_domain: '', configured_at: '2026-07-10T10:00:00Z' },
+  { id: 'wl7', owner_id: 'o7', owner_name: 'Kavita Rana', owner_email: 'kavita@example.com', brand_name: 'Mountain Peak', brand_tagline: 'Partner Portal', logo_text: 'MP', logo_url: '', theme: 'emerald', portal_access: false, landing_page_enabled: false, landing_page_theme: 'emerald', custom_domain: '', configured_at: '2026-07-18T10:00:00Z' },
+  { id: 'wl8', owner_id: 'o8', owner_name: 'Deepak Kumar', owner_email: 'deepak@example.com', brand_name: 'City Center', brand_tagline: 'Partner Portal', logo_text: 'CC', logo_url: '', theme: 'ocean', portal_access: false, landing_page_enabled: false, landing_page_theme: 'ocean', custom_domain: '', configured_at: '2026-08-01T10:00:00Z' },
+]
+
+export const ADMIN_THEMES = {
+  emerald: { id: 'emerald', name: 'Emerald', primary: '#1a9981', gradient: 'linear-gradient(135deg, #1a9981, #0d6e5a)' },
+  ocean: { id: 'ocean', name: 'Ocean Blue', primary: '#0284c7', gradient: 'linear-gradient(135deg, #0284c7, #0369a1)' },
+}
+
 export const SETTINGS = {
   platform_name: 'StayFinder',
   support_email: 'support@stayfinder.com',

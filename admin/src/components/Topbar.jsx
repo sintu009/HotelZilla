@@ -26,6 +26,7 @@ const PAGE_TITLES = {
   '/cms/destinations': ['CMS', 'Destinations'],
   '/cms/offers': ['CMS', 'Offers'],
   '/settings': ['Settings'],
+  '/white-label': ['White Labeling'],
 }
 
 const MOCK_NOTIFICATIONS = [

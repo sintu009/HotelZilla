@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { formatPrice } from '../lib/format'
-import { Star, MapPin, Wifi, Car, Coffee, Dumbbell, Save as Waves, ArrowRight, Search } from 'lucide-react'
+import { Star, MapPin, Wifi, Car, Coffee, Dumbbell, Save as Waves, ArrowRight, Search, CalendarDays, UsersRound, Gift } from 'lucide-react'
 
 const amenityIcons = { 'Free WiFi': Wifi, 'Parking': Car, 'Restaurant': Coffee, 'Gym': Dumbbell, 'Swimming Pool': Waves }
 
@@ -45,34 +45,52 @@ export default function Landing() {
     navigate(`/hotels${searchCity ? `?city=${encodeURIComponent(searchCity)}` : ''}`)
   }
 
+  const cityNames = destinations.length > 0
+    ? destinations.slice(0, 10).map(destination => destination.name)
+    : ['Bangalore', 'Pune', 'Hyderabad', 'Chennai', 'Mumbai', 'Noida', 'New Delhi', 'Kolkata', 'Nagpur', 'Visakhapatnam']
+
   return (
-    <div>
-      {/* Hero */}
+    <div className="landing-page">
+      {/* Campaign hero */}
       <section className="hero">
-        <div className="hero-bg" style={{ backgroundImage: 'url(https://images.pexels.com/photos/261101/pexels-photo-261101.jpeg)' }} />
+        <div className="hero-bg" style={{ backgroundImage: 'url(https://images.treebohotels.com/images/Masthead-Jul-Web-Masthead.jpg)' }} />
         <div className="hero-content">
-          <h1>{homepage?.hero_title || 'Find Your Perfect Stay'}</h1>
-          <p>{homepage?.hero_subtitle || 'Discover and book from thousands of hotels worldwide'}</p>
-          <form className="search-bar" onSubmit={handleSearch} style={{ marginTop: 8 }}>
-            <div className="search-field">
-              <label className="label">Destination</label>
-              <input className="input" placeholder={homepage?.hero_search_placeholder || 'Search by city, hotel, or location'} value={searchCity} onChange={e => setSearchCity(e.target.value)} />
+          <form className="search-bar" onSubmit={handleSearch}>
+            <div className="search-field search-location">
+              <span className="search-icon"><MapPin size={22} /></span>
+              <div>
+                <label className="label">Location</label>
+                <input placeholder="Where are you travelling?" value={searchCity} onChange={e => setSearchCity(e.target.value)} />
+              </div>
             </div>
-            <div className="search-field">
-              <label className="label">Check-in</label>
-              <input className="input" type="date" />
+            <div className="search-field search-dates">
+              <span className="search-icon"><CalendarDays size={22} /></span>
+              <div>
+                <label className="label">Check-in and Check-out</label>
+                <div className="search-value">Select your dates</div>
+              </div>
             </div>
-            <div className="search-field">
-              <label className="label">Check-out</label>
-              <input className="input" type="date" />
+            <div className="search-field search-guests">
+              <span className="search-icon"><UsersRound size={22} /></span>
+              <div>
+                <label className="label">Rooms & Guests</label>
+                <div className="search-value">1 Room, 1 Adult</div>
+              </div>
             </div>
-            <div className="search-field" style={{ flex: '0 0 auto' }}>
-              <label className="label">Guests</label>
-              <select className="input"><option>1 Guest</option><option>2 Guests</option><option>3 Guests</option><option>4+ Guests</option></select>
-            </div>
-            <button type="submit" className="btn btn-primary btn-lg"><Search size={18} /> Search</button>
+            <button type="submit" className="search-submit" aria-label="Search hotels"><Search size={24} /></button>
           </form>
         </div>
+      </section>
+
+      <div className="city-pills container">
+        {cityNames.map(city => <button key={city} onClick={() => navigate(`/hotels?city=${encodeURIComponent(city)}`)}>{city}</button>)}
+        <button className="city-pill-active" onClick={() => navigate('/hotels')}>All Cities</button>
+      </div>
+
+      <section className="container member-banner">
+        <div className="member-banner-copy"><Gift size={32} /><div><strong>Unlock Member Benefits!</strong><span>5% off on all bookings</span></div></div>
+        <div className="member-banner-perks">Save More&nbsp; | &nbsp;Stay Rewards&nbsp; | &nbsp;+16 More Perks</div>
+        <button onClick={() => navigate('/login')}>SIGN IN</button>
       </section>
 
       {/* Banner carousel */}

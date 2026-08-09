@@ -16,6 +16,7 @@ import Commissions from './pages/Commissions'
 import Reports from './pages/Reports'
 import CMS from './pages/CMS'
 import Settings from './pages/Settings'
+import WhiteLabel from './pages/WhiteLabel'
 
 function AdminLayout({ children }) {
   return (
@@ -50,6 +51,7 @@ function AppRoutes() {
             <Route path="/reports/:type" element={<Reports />} />
             <Route path="/cms/:section" element={<CMS />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/white-label" element={<WhiteLabel />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </AdminLayout>

@@ -3,16 +3,27 @@ import {
   LayoutDashboard, Building2, CalendarClock, BedDouble,
   Star, Wallet, Settings, Hotel
 } from 'lucide-react'
+import { WHITE_LABEL } from '../lib/whiteLabel'
 import { PARTNER } from '../lib/mockData'
 
 export default function Sidebar() {
   const lc = ({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`
+  const brand = WHITE_LABEL
 
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <span className="sidebar-brand-icon"><Hotel size={20} color="#fff" /></span>
-        Partner Portal
+        {brand.logo_url ? (
+          <img src={brand.logo_url} alt={brand.brand_name} style={{ width: 36, height: 36, borderRadius: 'var(--radius)', objectFit: 'cover' }} />
+        ) : (
+          <span className="sidebar-brand-icon" style={{ fontWeight: 800, fontSize: '0.85rem', color: '#fff' }}>
+            {brand.logo_text}
+          </span>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+          <span>{brand.brand_name}</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: 500, color: 'rgba(148,163,184,0.5)' }}>{brand.brand_tagline}</span>
+        </div>
       </div>
 
       <nav className="sidebar-section">
@@ -31,7 +42,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="sidebar-user-avatar">{PARTNER.avatar}</div>
+        <div className="sidebar-user-avatar">{brand.logo_text}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="sidebar-user-name">{PARTNER.name}</div>
           <div className="sidebar-user-email">{PARTNER.email}</div>

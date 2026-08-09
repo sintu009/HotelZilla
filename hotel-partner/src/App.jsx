@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
@@ -9,6 +10,7 @@ import Rooms from './pages/Rooms'
 import Reviews from './pages/Reviews'
 import Earnings from './pages/Earnings'
 import Settings from './pages/Settings'
+import { WHITE_LABEL, applyWhiteLabel } from './lib/whiteLabel'
 
 function Layout({ children }) {
   return (
@@ -23,7 +25,6 @@ function Layout({ children }) {
 }
 
 function AppRoutes() {
-  const { pathname } = useLocation()
   return (
     <Routes>
       <Route path="/*" element={
@@ -46,6 +47,10 @@ function AppRoutes() {
 }
 
 export default function App() {
+  useEffect(() => {
+    applyWhiteLabel(WHITE_LABEL)
+  }, [])
+
   return (
     <BrowserRouter>
       <AppRoutes />

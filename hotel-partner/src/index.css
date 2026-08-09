@@ -15,6 +15,15 @@
   --sidebar: #0d1f1a;
   --sidebar-hover: rgba(26,153,129,0.12);
   --sidebar-active: rgba(26,153,129,0.2);
+  --sidebar-active-text: #4ade80;
+  --sidebar-border: rgba(26,153,129,0.12);
+  --brand-gradient: linear-gradient(135deg, #1a9981, #0d6e5a);
+  --badge-info-bg: #d1fae5;
+  --badge-info-color: #065f46;
+  --badge-info-border: rgba(26,153,129,0.3);
+  --topbar-badge-bg: #d1fae5;
+  --topbar-badge-color: #0d6e5a;
+  --topbar-badge-border: rgba(26,153,129,0.3);
 
   /* Text */
   --text: #0f172a;
@@ -72,7 +81,7 @@ h4 { font-size: 0.9rem; }
   position: fixed; top: 0; left: 0; bottom: 0;
   display: flex; flex-direction: column;
   overflow-y: auto; z-index: 100;
-  border-right: 1px solid rgba(26,153,129,0.12);
+  border-right: 1px solid var(--sidebar-border);
 }
 .sidebar-brand {
   display: flex; align-items: center; gap: 10px;
@@ -83,7 +92,7 @@ h4 { font-size: 0.9rem; }
 }
 .sidebar-brand-icon {
   width: 36px; height: 36px; border-radius: var(--radius);
-  background: linear-gradient(135deg, #1a9981, #0d6e5a);
+  background: var(--brand-gradient);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
@@ -107,7 +116,7 @@ h4 { font-size: 0.9rem; }
 .sidebar-link:hover { background: var(--sidebar-hover); color: #e2e8f0; }
 .sidebar-link.active {
   background: var(--sidebar-active);
-  color: #4ade80;
+  color: var(--sidebar-active-text);
   font-weight: 600;
 }
 .sidebar-footer {
@@ -119,7 +128,7 @@ h4 { font-size: 0.9rem; }
 }
 .sidebar-user-avatar {
   width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, #1a9981, #0d6e5a);
+  background: var(--brand-gradient);
   color: #fff; font-size: 0.85rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
@@ -140,8 +149,8 @@ h4 { font-size: 0.9rem; }
 .topbar-actions { display: flex; align-items: center; gap: 8px; }
 .topbar-badge {
   font-size: 0.68rem; font-weight: 700;
-  background: var(--primary-light); color: var(--primary-dark);
-  border: 1px solid rgba(26,153,129,0.3);
+  background: var(--topbar-badge-bg); color: var(--topbar-badge-color);
+  border: 1px solid var(--topbar-badge-border);
   border-radius: var(--radius-sm);
   padding: 3px 10px; letter-spacing: 0.04em;
 }
@@ -183,7 +192,7 @@ h4 { font-size: 0.9rem; }
 .badge-success { background: #d1fae5; color: #065f46; }
 .badge-warning { background: #fef3c7; color: #92400e; }
 .badge-error { background: #fee2e2; color: #991b1b; }
-.badge-info { background: var(--primary-light); color: var(--primary-dark); }
+.badge-info { background: var(--badge-info-bg); color: var(--badge-info-color); border: 1px solid var(--badge-info-border); }
 .badge-neutral { background: #f1f5f9; color: #475569; }
 
 /* ── Cards ── */

@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ToastProvider } from './components/Toast'
 import Sidebar from './components/Sidebar'
+import Topbar from './components/Topbar'
 import Dashboard from './pages/Dashboard'
 import Customers from './pages/Customers'
 import HotelOwners from './pages/HotelOwners'
@@ -15,45 +17,12 @@ import Reports from './pages/Reports'
 import CMS from './pages/CMS'
 import Settings from './pages/Settings'
 
-const PAGE_TITLES = {
-  '/dashboard': 'Dashboard',
-  '/users/customers': 'Customers',
-  '/users/hotel-owners': 'Hotel Owners',
-  '/hotels': 'All Hotels',
-  '/hotels/pending': 'Pending Approval',
-  '/hotels/approved': 'Approved Hotels',
-  '/hotels/rejected': 'Rejected Hotels',
-  '/bookings': 'Bookings',
-  '/payments': 'Payments',
-  '/refunds': 'Refunds',
-  '/reviews': 'Reviews',
-  '/offers': 'Offers',
-  '/coupons': 'Coupons',
-  '/commissions': 'Commissions',
-  '/reports/revenue': 'Revenue Report',
-  '/reports/bookings': 'Bookings Report',
-  '/reports/hotels': 'Hotels Report',
-  '/reports/customers': 'Customers Report',
-  '/cms/homepage': 'Homepage',
-  '/cms/banners': 'Banners',
-  '/cms/destinations': 'Destinations',
-  '/cms/offers': 'Offers Content',
-  '/settings': 'Settings',
-}
-
 function AdminLayout({ children }) {
-  const { pathname } = useLocation()
-  const title = PAGE_TITLES[pathname] || 'StayFinder Admin'
   return (
     <div className="admin-layout">
       <Sidebar />
       <div className="main">
-        <div className="topbar">
-          <div className="topbar-title">{title}</div>
-          <div className="topbar-actions">
-            <span className="badge badge-info" style={{ fontSize: '0.7rem' }}>Mock Data Mode</span>
-          </div>
-        </div>
+        <Topbar />
         <div className="content">{children}</div>
       </div>
     </div>
@@ -92,7 +61,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <ToastProvider>
+        <AppRoutes />
+      </ToastProvider>
     </BrowserRouter>
   )
 }

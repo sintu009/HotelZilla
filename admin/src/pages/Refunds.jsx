@@ -2,12 +2,20 @@ import { useState } from 'react'
 import { REFUNDS } from '../lib/mockData'
 import { formatPrice, formatDateTime } from '../lib/format'
 import { Check, X } from 'lucide-react'
+import { useToast } from '../components/Toast'
+import ConfirmModal from '../components/ConfirmModal'
 
 export default function Refunds() {
+  const toast = useToast()
   const [rows, setRows] = useState(REFUNDS)
+  const [confirmProcess, setConfirmProcess] = useState(null)
+  const [confirmReject, setConfirmReject] = useState(null)
 
-  const updateStatus = (r, status) =>
+  const updateStatus = (r, status) => {
     setRows(prev => prev.map(x => x.id === r.id ? { ...x, status, processed_at: status === 'processed' ? new Date().toISOString() : x.processed_at } : x))
+    if (status === 'processed') toast.success('Refund Processed', `${formatPrice(r.amount)} refund for ${r.booking_reference} has been issued.`)
+    if (status === 'rejected') toast.error('Refund Rejected', `Refund request for ${r.booking_reference} has been rejected.`)
+  }
 
   const totalProcessed = rows.filter(r => r.status === 'processed').reduce((s, r) => s + r.amount, 0)
   const totalPending = rows.filter(r => r.status === 'pending').reduce((s, r) => s + r.amount, 0)
@@ -41,8 +49,8 @@ export default function Refunds() {
                     <td>
                       {r.status === 'pending' && (
                         <div style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn btn-success btn-sm" onClick={() => updateStatus(r, 'processed')}><Check size={12} /> Process</button>
-                          <button className="btn btn-danger btn-sm" onClick={() => updateStatus(r, 'rejected')}><X size={12} /> Reject</button>
+                          <button className="btn btn-success btn-sm" onClick={() => setConfirmProcess(r)}><Check size={12} /> Process</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => setConfirmReject(r)}><X size={12} /> Reject</button>
                         </div>
                       )}
                     </td>
@@ -52,6 +60,26 @@ export default function Refunds() {
           </table>
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!confirmProcess}
+        onClose={() => setConfirmProcess(null)}
+        onConfirm={() => updateStatus(confirmProcess, 'processed')}
+        variant="info"
+        title="Process Refund?"
+        message={`${formatPrice(confirmProcess?.amount)} will be refunded to the customer for booking ${confirmProcess?.booking_reference}.`}
+        confirmLabel="Process Refund"
+      />
+
+      <ConfirmModal
+        open={!!confirmReject}
+        onClose={() => setConfirmReject(null)}
+        onConfirm={() => updateStatus(confirmReject, 'rejected')}
+        variant="danger"
+        title="Reject Refund?"
+        message={`The refund request for booking ${confirmReject?.booking_reference} will be rejected.`}
+        confirmLabel="Reject"
+      />
     </div>
   )
 }

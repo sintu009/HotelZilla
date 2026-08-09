@@ -2,14 +2,19 @@ import { useState } from 'react'
 import { BOOKINGS } from '../lib/mockData'
 import { formatPrice, formatDate } from '../lib/format'
 import { Search, Eye } from 'lucide-react'
+import { useToast } from '../components/Toast'
+import ConfirmModal from '../components/ConfirmModal'
 
 const STATUS_BADGE = { confirmed: 'badge-success', cancelled: 'badge-error', completed: 'badge-info', pending: 'badge-warning', no_show: 'badge-neutral' }
 
 export default function Bookings() {
+  const toast = useToast()
   const [rows, setRows] = useState(BOOKINGS)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [selected, setSelected] = useState(null)
+  const [confirmCancel, setConfirmCancel] = useState(null)
+  const [confirmComplete, setConfirmComplete] = useState(null)
 
   const filtered = rows.filter(b => {
     const ms = !search || b.booking_reference.toLowerCase().includes(search.toLowerCase()) || b.hotel_name.toLowerCase().includes(search.toLowerCase()) || b.guest_name.toLowerCase().includes(search.toLowerCase())
@@ -20,6 +25,8 @@ export default function Bookings() {
   const updateStatus = (b, status) => {
     setRows(prev => prev.map(r => r.id === b.id ? { ...r, status } : r))
     setSelected(prev => prev?.id === b.id ? { ...prev, status } : prev)
+    if (status === 'cancelled') toast.error('Booking Cancelled', `Booking ${b.booking_reference} has been cancelled.`)
+    if (status === 'completed') toast.success('Booking Completed', `Booking ${b.booking_reference} marked as completed.`)
   }
 
   return (
@@ -96,12 +103,36 @@ export default function Bookings() {
               ))}
             </div>
             <div className="modal-footer">
-              {selected.status !== 'cancelled' && <button className="btn btn-danger btn-sm" onClick={() => updateStatus(selected, 'cancelled')}>Cancel Booking</button>}
-              {selected.status === 'confirmed' && <button className="btn btn-success btn-sm" onClick={() => updateStatus(selected, 'completed')}>Mark Completed</button>}
+              {selected.status !== 'cancelled' && (
+                <button className="btn btn-danger btn-sm" onClick={() => setConfirmCancel(selected)}>Cancel Booking</button>
+              )}
+              {selected.status === 'confirmed' && (
+                <button className="btn btn-success btn-sm" onClick={() => setConfirmComplete(selected)}>Mark Completed</button>
+              )}
             </div>
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!confirmCancel}
+        onClose={() => setConfirmCancel(null)}
+        onConfirm={() => updateStatus(confirmCancel, 'cancelled')}
+        variant="danger"
+        title="Cancel Booking?"
+        message={`Booking ${confirmCancel?.booking_reference} will be cancelled. This cannot be undone.`}
+        confirmLabel="Yes, Cancel"
+      />
+
+      <ConfirmModal
+        open={!!confirmComplete}
+        onClose={() => setConfirmComplete(null)}
+        onConfirm={() => updateStatus(confirmComplete, 'completed')}
+        variant="info"
+        title="Mark as Completed?"
+        message={`Booking ${confirmComplete?.booking_reference} will be marked as completed.`}
+        confirmLabel="Mark Completed"
+      />
     </div>
   )
 }

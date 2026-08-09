@@ -3,17 +3,21 @@ import { useParams } from 'react-router-dom'
 import { HOTELS } from '../lib/mockData'
 import { formatPrice, formatDate } from '../lib/format'
 import { Search, Eye, Check, X, Plus } from 'lucide-react'
+import { useToast } from '../components/Toast'
+import ConfirmModal from '../components/ConfirmModal'
 
 let nextId = 100
 
 export default function Hotels() {
   const { status } = useParams()
+  const toast = useToast()
   const [rows, setRows] = useState(HOTELS)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
   const [rejectMode, setRejectMode] = useState(null)
   const [rejectReason, setRejectReason] = useState('')
   const [showAdd, setShowAdd] = useState(false)
+  const [confirmApprove, setConfirmApprove] = useState(null)
 
   const filtered = rows
     .filter(h => !status || h.status === status)
@@ -22,17 +26,26 @@ export default function Hotels() {
       h.city.toLowerCase().includes(search.toLowerCase())
     )
 
-  const updateStatus = (h, newStatus, reason = '') => {
-    setRows(prev => prev.map(r => r.id === h.id ? { ...r, status: newStatus, rejection_reason: reason } : r))
+  const approve = (h) => {
+    setRows(prev => prev.map(r => r.id === h.id ? { ...r, status: 'approved', rejection_reason: '' } : r))
+    setSelected(null)
+    setConfirmApprove(null)
+    toast.success('Hotel Approved', `${h.name} is now live on the platform.`)
+  }
+
+  const reject = (h, reason) => {
+    setRows(prev => prev.map(r => r.id === h.id ? { ...r, status: 'rejected', rejection_reason: reason || 'Does not meet guidelines' } : r))
     setSelected(null)
     setRejectMode(null)
     setRejectReason('')
+    toast.error('Hotel Rejected', `${h.name} has been rejected.`)
   }
 
   const addHotel = (form) => {
-    const hotel = { ...form, id: `h${++nextId}`, status: 'approved', amenities: ['Free WiFi', 'AC', 'Parking'], images: [], rejection_reason: '', owner: 'Admin', owner_email: 'admin@stayfinder.com', created_at: new Date().toISOString() }
+    const hotel = { ...form, id: `h${++nextId}`, status: 'approved', amenities: ['Free WiFi', 'AC', 'Parking'], images: [], rejection_reason: '', owner: 'Admin', owner_email: 'admin@astitrip.com', created_at: new Date().toISOString() }
     setRows(prev => [hotel, ...prev])
     setShowAdd(false)
+    toast.success('Hotel Added', `${form.name} has been added successfully.`)
   }
 
   const title = status ? `${status.charAt(0).toUpperCase() + status.slice(1)} Hotels` : 'All Hotels'
@@ -81,10 +94,10 @@ export default function Hotels() {
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => setSelected(h)}><Eye size={14} /></button>
                         {h.status === 'pending' && <>
-                          <button className="btn btn-success btn-sm" onClick={() => updateStatus(h, 'approved')}><Check size={12} /> Approve</button>
+                          <button className="btn btn-success btn-sm" onClick={() => setConfirmApprove(h)}><Check size={12} /> Approve</button>
                           <button className="btn btn-danger btn-sm" onClick={() => { setRejectMode(h); setRejectReason('') }}><X size={12} /> Reject</button>
                         </>}
-                        {h.status === 'rejected' && <button className="btn btn-success btn-sm" onClick={() => updateStatus(h, 'approved')}><Check size={12} /> Approve</button>}
+                        {h.status === 'rejected' && <button className="btn btn-success btn-sm" onClick={() => setConfirmApprove(h)}><Check size={12} /> Approve</button>}
                         {h.status === 'approved' && <button className="btn btn-secondary btn-sm" onClick={() => { setRejectMode(h); setRejectReason('') }}><X size={12} /> Reject</button>}
                       </div>
                     </td>
@@ -111,7 +124,6 @@ export default function Hotels() {
                 ['Total Rooms', selected.total_rooms],
                 ['Contact', `${selected.contact_phone} / ${selected.contact_email}`],
                 ['Amenities', (selected.amenities || []).join(', ') || '—'],
-                ['Description', selected.description || '—'],
                 ['Registered', formatDate(selected.created_at)],
               ].map(([l, v]) => (
                 <div key={l} className="detail-row"><div className="detail-label">{l}</div><div className="detail-value">{v}</div></div>
@@ -121,7 +133,7 @@ export default function Hotels() {
             {selected.status === 'pending' && (
               <div className="modal-footer">
                 <button className="btn btn-danger btn-sm" onClick={() => { setRejectMode(selected); setSelected(null) }}>Reject</button>
-                <button className="btn btn-success btn-sm" onClick={() => updateStatus(selected, 'approved')}>Approve</button>
+                <button className="btn btn-success btn-sm" onClick={() => { setConfirmApprove(selected); setSelected(null) }}>Approve</button>
               </div>
             )}
           </div>
@@ -139,13 +151,23 @@ export default function Hotels() {
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary btn-sm" onClick={() => setRejectMode(null)}>Cancel</button>
-              <button className="btn btn-danger btn-sm" onClick={() => updateStatus(rejectMode, 'rejected', rejectReason || 'Does not meet guidelines')}>Confirm Rejection</button>
+              <button className="btn btn-danger btn-sm" onClick={() => reject(rejectMode, rejectReason)}>Confirm Rejection</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add hotel modal */}
+      {/* Approve confirm */}
+      <ConfirmModal
+        open={!!confirmApprove}
+        onClose={() => setConfirmApprove(null)}
+        onConfirm={() => approve(confirmApprove)}
+        variant="info"
+        title="Approve Hotel?"
+        message={`${confirmApprove?.name} will be published and visible to customers.`}
+        confirmLabel="Yes, Approve"
+      />
+
       {showAdd && <AddHotelModal onClose={() => setShowAdd(false)} onAdd={addHotel} />}
     </div>
   )

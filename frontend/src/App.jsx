@@ -20,21 +20,21 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/*" element={
-          <>
-            <Header />
-            <main style={{ minHeight: '60vh' }}>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/hotels" element={<HotelListing />} />
-                <Route path="/hotels/:id" element={<HotelDetail />} />
-                <Route path="/booking" element={<Booking />} />
-                <Route path="/register-hotel" element={<RegisterHotel />} />
-                <Route path="/offers" element={<Offers />} />
-                <Route path="/my-bookings" element={<MyBookings />} />
-              </Routes>
-            </main>
-            <Footer />
-          </>
+            <>
+              <Header />
+              <main style={{ minHeight: '60vh' }}>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/hotels" element={<HotelListing />} />
+                  <Route path="/hotels/:id" element={<HotelDetail />} />
+                  <Route path="/booking" element={<Booking />} />
+                  <Route path="/register-hotel" element={<RegisterHotel />} />
+                  <Route path="/offers" element={<Offers />} />
+                  <Route path="/my-bookings" element={<MyBookings />} />
+                </Routes>
+              </main>
+              <Footer />
+            </>
           } />
         </Routes>
       </BrowserRouter>

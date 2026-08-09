@@ -2,19 +2,27 @@ import { useState } from 'react'
 import { CUSTOMERS } from '../lib/mockData'
 import { formatDate } from '../lib/format'
 import { Search, Ban, CircleCheck as CheckCircle, Eye } from 'lucide-react'
+import { useToast } from '../components/Toast'
+import ConfirmModal from '../components/ConfirmModal'
 
 export default function Customers() {
+  const toast = useToast()
   const [rows, setRows] = useState(CUSTOMERS)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
+  const [confirmToggle, setConfirmToggle] = useState(null)
 
   const filtered = rows.filter(u =>
     u.full_name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   )
 
-  const toggleStatus = (u) =>
-    setRows(prev => prev.map(r => r.id === u.id ? { ...r, status: r.status === 'active' ? 'suspended' : 'active' } : r))
+  const toggleStatus = (u) => {
+    const next = u.status === 'active' ? 'suspended' : 'active'
+    setRows(prev => prev.map(r => r.id === u.id ? { ...r, status: next } : r))
+    if (next === 'suspended') toast.warning('Customer Suspended', `${u.full_name}'s account has been suspended.`)
+    else toast.success('Customer Activated', `${u.full_name}'s account is now active.`)
+  }
 
   return (
     <div>
@@ -49,7 +57,10 @@ export default function Customers() {
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => setSelected(u)}><Eye size={14} /></button>
-                        <button className={`btn btn-sm ${u.status === 'active' ? 'btn-secondary' : 'btn-success'}`} onClick={() => toggleStatus(u)}>
+                        <button
+                          className={`btn btn-sm ${u.status === 'active' ? 'btn-secondary' : 'btn-success'}`}
+                          onClick={() => setConfirmToggle(u)}
+                        >
                           {u.status === 'active' ? <><Ban size={12} /> Suspend</> : <><CheckCircle size={12} /> Activate</>}
                         </button>
                       </div>
@@ -73,6 +84,20 @@ export default function Customers() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!confirmToggle}
+        onClose={() => setConfirmToggle(null)}
+        onConfirm={() => toggleStatus(confirmToggle)}
+        variant={confirmToggle?.status === 'active' ? 'warning' : 'info'}
+        title={confirmToggle?.status === 'active' ? 'Suspend Customer?' : 'Activate Customer?'}
+        message={
+          confirmToggle?.status === 'active'
+            ? `${confirmToggle?.full_name} will lose access to the platform.`
+            : `${confirmToggle?.full_name}'s account will be restored.`
+        }
+        confirmLabel={confirmToggle?.status === 'active' ? 'Suspend' : 'Activate'}
+      />
     </div>
   )
 }

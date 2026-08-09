@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { Hotel, User, LogOut } from 'lucide-react'
+import { LogOut, User } from 'lucide-react'
 import { useState } from 'react'
+import Logo from './Logo'
 
 export default function Header() {
   const { user, profile, signOut } = useAuth()
@@ -18,8 +19,7 @@ export default function Header() {
       <div className="container">
         <div className="header-inner">
           <Link to="/" className="logo">
-            <span className="logo-icon"><Hotel size={20} /></span>
-            StayFinder
+            <Logo width={130} color="#ffffff" />
           </Link>
 
           <nav className="nav-links">
@@ -32,7 +32,7 @@ export default function Header() {
           <div className="header-actions">
             {user ? (
               <div style={{ position: 'relative' }}>
-                <button className="btn btn-secondary btn-sm" onClick={() => setMenuOpen(!menuOpen)}>
+                <button className="btn btn-ghost btn-sm header-user-btn" onClick={() => setMenuOpen(!menuOpen)}>
                   <User size={16} /> {profile?.full_name || user.email?.split('@')[0]}
                 </button>
                 {menuOpen && (
@@ -54,8 +54,8 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Link to="/login" className="btn btn-ghost btn-sm">Sign In</Link>
-                <Link to="/signup" className="btn btn-primary btn-sm">Sign Up</Link>
+                <Link to="/login" className="btn btn-ghost btn-sm header-signin">Sign In</Link>
+                <Link to="/signup" className="btn btn-accent btn-sm">Sign Up</Link>
               </>
             )}
           </div>

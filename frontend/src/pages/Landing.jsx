@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { formatPrice } from '../lib/format'
-import { Star, MapPin, Wifi, Car, Coffee, Dumbbell, Save as Waves, ArrowRight, Search, CalendarDays, UsersRound, Gift } from 'lucide-react'
+import { Star, MapPin, Coffee, Save as Waves, ArrowRight, Search, CalendarDays, UsersRound, Gift } from 'lucide-react'
 
 const MOCK_HOTELS = [
   { id: '1', name: 'The Grand Palace', city: 'Mumbai', state: 'Maharashtra', star_rating: 5, price_from: 8500, amenities: ['Free WiFi', 'Swimming Pool', 'Restaurant'], cover_image: 'https://images.treebohotels.com/images/Masthead-Jul-Web-Masthead.jpg' },
@@ -33,9 +33,7 @@ export default function Landing() {
     navigate(`/hotels${searchCity ? `?city=${encodeURIComponent(searchCity)}` : ''}`)
   }
 
-  const cityNames = destinations.length > 0
-    ? destinations.slice(0, 10).map(destination => destination.name)
-    : ['Bangalore', 'Pune', 'Hyderabad', 'Chennai', 'Mumbai', 'Noida', 'New Delhi', 'Kolkata', 'Nagpur', 'Visakhapatnam']
+  const cityNames = MOCK_DESTINATIONS.map(d => d.name)
 
   return (
     <div className="landing-page">
@@ -43,22 +41,15 @@ export default function Landing() {
       <section className="hero">
         <div className="hero-bg" style={{ backgroundImage: 'url(https://images.treebohotels.com/images/Masthead-Jul-Web-Masthead.jpg)' }} />
         <div className="hero-content">
-<<<<<<< HEAD
-          <h1>Find Your Perfect Stay</h1>
-          <p>Discover and book from thousands of hotels worldwide</p>
+          {/* <h1>Find Your Perfect Stay</h1>
+          <p>Discover and book from thousands of hotels worldwide</p> */}
           <form className="search-bar" onSubmit={handleSearch} style={{ marginTop: 8 }}>
-            <div className="search-field">
-              <label className="label">Destination</label>
-              <input className="input" placeholder="Search by city, hotel, or location" value={searchCity} onChange={e => setSearchCity(e.target.value)} />
-=======
-          <form className="search-bar" onSubmit={handleSearch}>
             <div className="search-field search-location">
               <span className="search-icon"><MapPin size={22} /></span>
               <div>
-                <label className="label">Location</label>
-                <input placeholder="Where are you travelling?" value={searchCity} onChange={e => setSearchCity(e.target.value)} />
+                <label className="label">Destination</label>
+                <input placeholder="Search by city, hotel, or location" value={searchCity} onChange={e => setSearchCity(e.target.value)} />
               </div>
->>>>>>> 9193242f14fa44f7cefb850a6b66b7bba0d570af
             </div>
             <div className="search-field search-dates">
               <span className="search-icon"><CalendarDays size={22} /></span>
@@ -79,8 +70,6 @@ export default function Landing() {
         </div>
       </section>
 
-<<<<<<< HEAD
-=======
       <div className="city-pills container">
         {cityNames.map(city => <button key={city} onClick={() => navigate(`/hotels?city=${encodeURIComponent(city)}`)}>{city}</button>)}
         <button className="city-pill-active" onClick={() => navigate('/hotels')}>All Cities</button>
@@ -92,29 +81,6 @@ export default function Landing() {
         <button onClick={() => navigate('/login')}>SIGN IN</button>
       </section>
 
-      {/* Banner carousel */}
-      {banners.length > 0 && (
-        <section className="container" style={{ paddingTop: 32 }}>
-          <div className="banner-carousel">
-            {banners.map((b, i) => (
-              <div key={b.id} className={`banner-slide ${i === bannerIdx ? 'active' : ''}`}>
-                <img src={b.image_url} alt={b.title} />
-                <div className="banner-slide-overlay">
-                  <h2 style={{ color: '#fff' }}>{b.title}</h2>
-                  <p style={{ opacity: 0.9 }}>{b.subtitle}</p>
-                </div>
-              </div>
-            ))}
-            <div className="banner-dots">
-              {banners.map((_, i) => (
-                <div key={i} className={`banner-dot ${i === bannerIdx ? 'active' : ''}`} onClick={() => setBannerIdx(i)} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
->>>>>>> 9193242f14fa44f7cefb850a6b66b7bba0d570af
       {/* Featured Hotels */}
       <section className="container section">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>

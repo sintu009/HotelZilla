@@ -1,7 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Manrope:400,500,700,800&display=swap");
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
 
 :root {
   /* Brand — teal/emerald to distinguish from admin */
@@ -470,3 +469,5 @@ h4 { font-size: 0.9rem; }
 .public-review-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand-gradient); color: #fff; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .public-review-name { font-size: 0.85rem; font-weight: 700; }
 .public-review-date { font-size: 0.75rem; color: var(--text-muted); }
+
+@tailwind utilities;

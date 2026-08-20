@@ -1,11 +1,13 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BedDouble, Maximize2, Star, Heart, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const hotelCards = [
-  { name: 'Villa, Kemah Tinggi', price: '$ 990', bedrooms: '2 bedrooms', image: 'https://images.pexels.com/photos/16849866/pexels-photo-16849866.jpeg?auto=compress&cs=tinysrgb&w=600', partial: true },
-  { name: 'Villa, Kemah Tinggi', price: '$ 990', bedrooms: '2 bedrooms', image: 'https://images.pexels.com/photos/6127358/pexels-photo-6127358.jpeg?auto=compress&cs=tinysrgb&w=600' },
-  { name: 'Villa, Kuta Premiere', price: '$ 920', bedrooms: '5 bedrooms', image: 'https://images.pexels.com/photos/15780455/pexels-photo-15780455.jpeg?auto=compress&cs=tinysrgb&w=600' },
-  { name: 'Villa, Kuta Premiere', price: '$ 920', bedrooms: '5 bedrooms', image: 'https://images.pexels.com/photos/33230041/pexels-photo-33230041.jpeg?auto=compress&cs=tinysrgb&w=600' },
-  { name: 'Villa, Kemah Tinggi', price: '$ 990', bedrooms: '2 bedrooms', image: 'https://images.pexels.com/photos/37951904/pexels-photo-37951904.jpeg?auto=compress&cs=tinysrgb&w=600', partial: true },
+  { id: 'h1', name: 'Villa, Kemah Tinggi', price: '$ 990', bedrooms: '2 bedrooms', image: 'https://images.pexels.com/photos/16849866/pexels-photo-16849866.jpeg?auto=compress&cs=tinysrgb&w=600' },
+  { id: 'h2', name: 'Villa, Kemah Tinggi', price: '$ 990', bedrooms: '2 bedrooms', image: 'https://images.pexels.com/photos/6127358/pexels-photo-6127358.jpeg?auto=compress&cs=tinysrgb&w=600' },
+  { id: 'h3', name: 'Villa, Kuta Premiere', price: '$ 920', bedrooms: '5 bedrooms', image: 'https://images.pexels.com/photos/15780455/pexels-photo-15780455.jpeg?auto=compress&cs=tinysrgb&w=600' },
+  { id: 'h4', name: 'Villa, Kuta Premiere', price: '$ 920', bedrooms: '5 bedrooms', image: 'https://images.pexels.com/photos/33230041/pexels-photo-33230041.jpeg?auto=compress&cs=tinysrgb&w=600' },
+  { id: 'h5', name: 'Villa, Kemah Tinggi', price: '$ 990', bedrooms: '2 bedrooms', image: 'https://images.pexels.com/photos/37951904/pexels-photo-37951904.jpeg?auto=compress&cs=tinysrgb&w=600' },
 ]
 
 const benefits = [
@@ -33,12 +35,30 @@ function SlideIndicators() {
 }
 
 export default function NearbyHotelsSection() {
+  const navigate = useNavigate()
+  const [favorites, setFavorites] = useState({})
+  const [activeIndex, setActiveIndex] = useState(2)
+
+  const toggleFav = (idx, e) => {
+    e.stopPropagation()
+    setFavorites(prev => ({ ...prev, [idx]: !prev[idx] }))
+  }
+
+  const prevSlide = () => setActiveIndex(i => i === 0 ? hotelCards.length - 1 : i - 1)
+  const nextSlide = () => setActiveIndex(i => i === hotelCards.length - 1 ? 0 : i + 1)
+
+  const visibleCards = [
+    { ...hotelCards[(activeIndex - 1 + hotelCards.length) % hotelCards.length], partial: true },
+    ...hotelCards.filter((_, i) => i >= activeIndex && i < activeIndex + 3).map(c => ({ ...c, partial: false })),
+    { ...hotelCards[(activeIndex + 3) % hotelCards.length], partial: true },
+  ].slice(0, 5)
+
   return (
     <section className="relative w-full overflow-hidden bg-[#f0efef]">
-      {/* Pagination dots - centered at top */}
+      {/* Pagination dots */}
       <nav className="mx-auto flex w-fit items-center gap-1.5 pt-12">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <button key={i} className={`h-2.5 rounded-full transition-opacity hover:opacity-75 ${i === 2 ? 'w-10 bg-[#1c1c1c]' : 'w-5 bg-[#cccccc]'}`} />
+        {hotelCards.map((_, i) => (
+          <button key={i} onClick={() => setActiveIndex(i)} className={`h-2.5 rounded-full transition-all hover:opacity-75 ${activeIndex === i ? 'w-10 bg-[#1c1c1c]' : 'w-5 bg-[#cccccc]'}`} />
         ))}
       </nav>
 
@@ -48,19 +68,19 @@ export default function NearbyHotelsSection() {
         </h2>
 
         <div className="relative mt-16">
-          <button className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 shadow-md hover:bg-white">
+          <button onClick={prevSlide} className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 shadow-md hover:bg-white">
             <ChevronLeft className="h-5 w-5 text-[#1c1c1c]" />
           </button>
 
-          <div className="mx-auto flex max-w-[1400px] items-start justify-center gap-8 overflow-visible">
-            {hotelCards.map((hotel, index) => (
-              <article key={index} className={`shrink-0 ${hotel.partial ? 'hidden w-[180px] opacity-60 blur-[1px] xl:block' : 'w-[280px] lg:w-[300px]'}`}>
-                <div className="p-0">
+          <div className="mx-auto flex max-w-[1400px] items-start justify-center gap-8 overflow-hidden">
+            {visibleCards.map((hotel, idx) => (
+              <article key={`${hotel.id}-${idx}`} className={`shrink-0 transition-all duration-300 ${hotel.partial ? 'hidden w-[180px] opacity-60 blur-[1px] xl:block' : 'w-[280px] lg:w-[300px]'}`}>
+                <div onClick={() => navigate(`/hotels/${hotel.id}`)} className="cursor-pointer">
                   <div className={`group relative overflow-hidden rounded-3xl ${hotel.partial ? 'h-[280px]' : 'h-[320px] shadow-[0px_4px_4px_#00000040]'}`}>
                     <img className="h-full w-full object-cover" alt={hotel.name} src={hotel.image} />
                     <div className="absolute left-4 top-4"><Rating /></div>
-                    <button className="absolute right-4 top-4 p-0 hover:bg-transparent">
-                      <Heart className="h-6 w-6 text-white" />
+                    <button onClick={(e) => toggleFav(idx, e)} className="absolute right-4 top-4 p-0 hover:bg-transparent">
+                      <Heart className={`h-6 w-6 transition-colors ${favorites[idx] ? 'fill-red-500 text-red-500' : 'text-white'}`} />
                     </button>
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2"><SlideIndicators /></div>
                   </div>
@@ -86,7 +106,7 @@ export default function NearbyHotelsSection() {
             ))}
           </div>
 
-          <button className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 shadow-md hover:bg-white">
+          <button onClick={nextSlide} className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 shadow-md hover:bg-white">
             <ChevronRight className="h-5 w-5 text-[#1c1c1c]" />
           </button>
         </div>

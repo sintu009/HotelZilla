@@ -1,19 +1,34 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const propertyTypes = [
-  { name: 'Hotels', image: 'https://images.pexels.com/photos/39035671/pexels-photo-39035671.jpeg?auto=compress&cs=tinysrgb&w=600' },
-  { name: 'Apartments', image: 'https://images.pexels.com/photos/34487094/pexels-photo-34487094.jpeg?auto=compress&cs=tinysrgb&w=600' },
-  { name: 'Resorts', image: 'https://images.pexels.com/photos/19756781/pexels-photo-19756781.jpeg?auto=compress&cs=tinysrgb&w=600' },
-  { name: 'Villas', image: 'https://images.pexels.com/photos/32775822/pexels-photo-32775822.jpeg?auto=compress&cs=tinysrgb&w=600' },
-  { name: 'Cottages', image: 'https://images.pexels.com/photos/15394148/pexels-photo-15394148.jpeg?auto=compress&cs=tinysrgb&w=600' },
+  { name: 'Hotels', image: 'https://images.pexels.com/photos/39035671/pexels-photo-39035671.jpeg?auto=compress&cs=tinysrgb&w=600', filter: 'Hotels' },
+  { name: 'Apartments', image: 'https://images.pexels.com/photos/34487094/pexels-photo-34487094.jpeg?auto=compress&cs=tinysrgb&w=600', filter: 'Apartments' },
+  { name: 'Resorts', image: 'https://images.pexels.com/photos/19756781/pexels-photo-19756781.jpeg?auto=compress&cs=tinysrgb&w=600', filter: 'Resorts' },
+  { name: 'Villas', image: 'https://images.pexels.com/photos/32775822/pexels-photo-32775822.jpeg?auto=compress&cs=tinysrgb&w=600', filter: 'Villas' },
+  { name: 'Cottages', image: 'https://images.pexels.com/photos/15394148/pexels-photo-15394148.jpeg?auto=compress&cs=tinysrgb&w=600', filter: 'Cottages' },
 ]
 
 const paginationItems = [0, 1, 2, 3, 4]
 
 export default function PropertyTypeBrowseSection() {
+  const navigate = useNavigate()
   const [activeSlide, setActiveSlide] = useState(2)
   const [selected, setSelected] = useState('Resorts')
+  const scrollRef = useRef(null)
+
+  const scroll = (dir) => {
+    if (!scrollRef.current) return
+    const scrollAmount = 315
+    scrollRef.current.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' })
+    setActiveSlide(s => dir < 0 ? (s === 0 ? paginationItems.length - 1 : s - 1) : (s === paginationItems.length - 1 ? 0 : s + 1))
+  }
+
+  const handleSelect = (name, filter) => {
+    setSelected(name)
+    navigate(`/hotels?type=${filter}`)
+  }
 
   return (
     <section className="w-full overflow-hidden bg-[#f0efef] pt-32 pb-16">
@@ -32,25 +47,25 @@ export default function PropertyTypeBrowseSection() {
       </div>
 
       <div className="mx-auto mt-12 flex w-full max-w-[1600px] items-center gap-6 px-6 lg:px-12">
-        <button onClick={() => setActiveSlide((s) => s === 0 ? paginationItems.length - 1 : s - 1)} className="h-auto shrink-0 rounded-full p-0 hover:bg-transparent">
+        <button onClick={() => scroll(-1)} className="h-auto shrink-0 rounded-full p-0 hover:bg-transparent">
           <ChevronLeft className="h-8 w-8 text-[#1c1c1c]" />
         </button>
-        <div className="min-w-0 flex-1 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div ref={scrollRef} className="min-w-0 flex-1 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="grid min-w-[1400px] grid-cols-5 gap-4">
             {propertyTypes.map((pt) => {
               const isSelected = selected === pt.name
               return (
                 <article key={pt.name} className="w-full">
-                  <button onClick={() => setSelected(pt.name)} className="h-auto w-full justify-center rounded-none bg-transparent px-0 pb-5 pt-0 font-display text-xl font-bold leading-tight tracking-[0.1px] hover:bg-transparent lg:text-2xl">
+                  <button onClick={() => handleSelect(pt.name, pt.filter)} className="h-auto w-full justify-center rounded-none bg-transparent px-0 pb-5 pt-0 font-display text-xl font-bold leading-tight tracking-[0.1px] hover:bg-transparent lg:text-2xl">
                     <span className={`bg-[linear-gradient(90deg,rgba(37,37,37,1)_0%,rgba(106,106,106,1)_100%)] bg-clip-text text-transparent ${isSelected ? 'opacity-100' : 'opacity-60'}`}>{pt.name}</span>
                   </button>
-                  <img className="h-[500px] w-full rounded-2xl object-cover lg:h-[580px]" alt={pt.name} src={pt.image} />
+                  <img className="h-[500px] w-full cursor-pointer rounded-2xl object-cover transition-transform hover:scale-[1.02] lg:h-[580px]" alt={pt.name} src={pt.image} onClick={() => handleSelect(pt.name, pt.filter)} />
                 </article>
               )
             })}
           </div>
         </div>
-        <button onClick={() => setActiveSlide((s) => s === paginationItems.length - 1 ? 0 : s + 1)} className="h-auto shrink-0 rounded-full p-0 hover:bg-transparent">
+        <button onClick={() => scroll(1)} className="h-auto shrink-0 rounded-full p-0 hover:bg-transparent">
           <ChevronRight className="h-8 w-8 text-[#1c1c1c]" />
         </button>
       </div>

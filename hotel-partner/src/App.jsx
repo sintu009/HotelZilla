@@ -45,9 +45,9 @@ function AppRoutes() {
     <Routes>
       {/* Public website */}
       <Route path="/" element={<PublicLanding />} />
-      <Route path="/hotels" element={<PublicLayout><PublicHotelListing /></PublicLayout>} />
-      <Route path="/hotels/:id" element={<PublicLayout><PublicHotelDetail /></PublicLayout>} />
-      <Route path="/booking" element={<PublicLayout><PublicBooking /></PublicLayout>} />
+      <Route path="/hotels" element={<PublicHotelListing />} />
+      <Route path="/hotels/:id" element={<PublicHotelDetail />} />
+      <Route path="/booking" element={<PublicBooking />} />
 
       {/* Partner dashboard */}
       <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />

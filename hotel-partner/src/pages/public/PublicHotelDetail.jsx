@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { HOTELS, ROOMS, REVIEWS } from '../../lib/mockData'
 import { formatPrice, formatDate, nightsBetween } from '../../lib/format'
-import { Star, MapPin, Check, Users, Bed, Maximize, Wifi, Car, Coffee, Dumbbell, Save as Waves, ArrowLeft } from 'lucide-react'
+import { Star, MapPin, Check, Users, Bed, Maximize, Wifi, Car, Coffee, Dumbbell, Waves, ArrowLeft } from 'lucide-react'
 
 const amenityIcons = { 'Free WiFi': Wifi, 'Parking': Car, 'Restaurant': Coffee, 'Gym': Dumbbell, 'Swimming Pool': Waves, 'AC': Check, 'Spa': Waves, 'Beach Access': Waves, 'Room Service': Coffee, 'Bar': Coffee, 'TV': Check, 'Mini Bar': Coffee, 'Sea View': Waves, 'Jacuzzi': Waves, 'Private Pool': Waves, 'Butler': Users, 'Garden View': Waves, 'Living Area': Maximize, 'Balcony': Maximize }
 
@@ -50,112 +50,188 @@ export default function PublicHotelDetail() {
     })
   }
 
-  if (!hotel) return <div className="public-container empty-state" style={{ paddingTop: 48 }}><h3>Hotel not found</h3><button className="btn btn-primary" onClick={() => navigate('/hotels')}>Back to Hotels</button></div>
+  if (!hotel) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#f0efef]">
+        <h3 className="font-display text-2xl font-bold text-[#252525]">Hotel not found</h3>
+        <button onClick={() => navigate('/hotels')} className="mt-4 rounded-xl bg-[#c49c74] px-6 py-3 font-display text-base font-medium text-[#252525] hover:bg-[#d0aa84]">Back to Hotels</button>
+      </div>
+    )
+  }
 
   const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : hotel.rating
 
   return (
-    <div className="public-container" style={{ paddingTop: 24 }}>
-      <button className="btn btn-ghost btn-sm" onClick={() => navigate('/hotels')} style={{ marginBottom: 16 }}>
-        <ArrowLeft size={14} /> Back to Hotels
-      </button>
+    <div className="min-h-screen bg-[#f0efef]">
+      {/* Top bar */}
+      <header className="sticky top-0 z-50 bg-[#1c1c1c] px-6 py-4 lg:px-12">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
+          <button onClick={() => navigate('/')} className="flex items-end gap-0.5 text-[#f6f6f6]">
+            <span className="font-display text-2xl font-normal tracking-[0.1px] lg:text-3xl">Bookme.</span>
+            <span className="font-display text-base font-normal tracking-[0.1px] lg:text-lg">com</span>
+          </button>
+          <nav className="hidden items-center gap-8 lg:flex">
+            <button onClick={() => navigate('/')} className="font-display text-base text-white/80 hover:text-white">Home</button>
+            <button onClick={() => navigate('/hotels')} className="font-display text-base text-white hover:text-white/80">Hotels</button>
+            <button onClick={() => navigate('/dashboard')} className="font-display text-base text-white/80 hover:text-white">Partner</button>
+          </nav>
+          <button onClick={() => navigate('/dashboard')} className="rounded-full bg-[#c49c74] px-6 py-2 font-display text-base font-medium text-[#252525] hover:bg-[#d0aa84]">Sign in</button>
+        </div>
+      </header>
 
-      <div className="public-detail-gallery">
-        <div className="public-detail-gallery-main"><img src={hotel.cover_image} alt={hotel.name} /></div>
-      </div>
+      <div className="mx-auto max-w-[1400px] px-6 py-8 lg:px-12">
+        <button onClick={() => navigate('/hotels')} className="mb-6 flex items-center gap-2 font-display text-base text-[#252525] hover:text-[#c49c74]">
+          <ArrowLeft className="h-4 w-4" /> Back to Hotels
+        </button>
 
-      <div className="public-detail-grid">
-        <div className="public-detail-info">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            {[...Array(hotel.star_rating)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
-            <span className="badge badge-success">{avgRating} ★</span>
-          </div>
-          <h1>{hotel.name}</h1>
-          <div className="public-detail-location"><MapPin size={14} /> {hotel.address}</div>
-          <div className="public-detail-amenities">
-            {hotel.amenities.map(a => { const Icon = amenityIcons[a] || Check; return <span key={a} className="public-detail-amenity"><Icon size={12} /> {a}</span> })}
-          </div>
-          <div className="public-detail-section">
-            <h3>About</h3>
-            <p>{hotel.description}</p>
-          </div>
-
-          <div className="public-detail-section">
-            <h3>Available Rooms</h3>
-            {rooms.map(room => (
-              <div key={room.id} className="public-room-card">
-                <div className="public-room-card-body">
-                  <div className="public-room-card-name">{room.name}</div>
-                  <div className="public-room-card-info">
-                    <span><Users size={12} /> {room.max_guests} guests</span>
-                    <span><Bed size={12} /> {room.bed_type}</span>
-                    <span><Maximize size={12} /> {room.size_sqft} sqft</span>
-                  </div>
-                  <div className="public-room-card-amenities">
-                    {room.amenities.map(a => <span key={a} className="public-hotel-amenity">{a}</span>)}
-                  </div>
-                  <div className="public-room-card-footer">
-                    <div className="public-hotel-price">{formatPrice(room.base_price)} <small>/night</small></div>
-                    <button className={`btn ${selectedRoom?.id === room.id ? 'btn-primary' : 'btn-secondary'} btn-sm`} onClick={() => setSelectedRoom(room)}>
-                      {selectedRoom?.id === room.id ? 'Selected' : 'Select'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="public-detail-section">
-            <h3>Reviews ({reviews.length})</h3>
-            {reviews.length === 0 ? <p style={{ color: 'var(--text-secondary)' }}>No reviews yet.</p> : reviews.map(r => (
-              <div key={r.id} className="public-review-card">
-                <div className="public-review-header">
-                  <div className="public-review-avatar">{(r.reviewer || 'G')[0].toUpperCase()}</div>
-                  <div>
-                    <div className="public-review-name">{r.reviewer}</div>
-                    <div className="public-review-date">{formatDate(r.created_at)}</div>
-                  </div>
-                  <div style={{ marginLeft: 'auto' }}><span className="badge badge-success">{r.rating} ★</span></div>
-                </div>
-                {r.title && <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 4 }}>{r.title}</div>}
-                <p className="public-review-text">{r.comment}</p>
-              </div>
-            ))}
-          </div>
+        {/* Gallery */}
+        <div className="mb-8 overflow-hidden rounded-2xl">
+          <img src={hotel.cover_image} alt={hotel.name} className="h-[400px] w-full object-cover" />
         </div>
 
-        <div>
-          <div className="public-booking-card">
-            <div className="public-booking-price">{selectedRoom ? formatPrice(selectedRoom.base_price) : formatPrice(hotel.price_from)} <small>/night</small></div>
-            <div className="public-booking-divider" />
-            <div className="form-group"><label className="label">Check-in</label><input className="input" type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} min={new Date().toISOString().split('T')[0]} /></div>
-            <div className="form-group"><label className="label">Check-out</label><input className="input" type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} min={checkIn || new Date().toISOString().split('T')[0]} /></div>
-            <div className="form-group"><label className="label">Guests</label><select className="input" value={guests} onChange={e => setGuests(+e.target.value)}><option value={1}>1 Guest</option><option value={2}>2 Guests</option><option value={3}>3 Guests</option><option value={4}>4 Guests</option><option value={5}>5+ Guests</option></select></div>
-            <div className="form-group"><label className="label">Rooms</label><select className="input" value={roomsCount} onChange={e => setRoomsCount(+e.target.value)}><option value={1}>1 Room</option><option value={2}>2 Rooms</option><option value={3}>3 Rooms</option></select></div>
-
-            {selectedRoom && checkIn && checkOut && (
-              <>
-                <div className="public-booking-divider" />
-                <div className="public-booking-row"><span>Base ({nights} nights × {roomsCount} rooms)</span><span>{formatPrice(baseAmount)}</span></div>
-                {discount > 0 && <div className="public-booking-row" style={{ color: 'var(--success)' }}><span>Discount</span><span>-{formatPrice(discount)}</span></div>}
-                <div className="public-booking-row"><span>Taxes (12%)</span><span>{formatPrice(taxAmount)}</span></div>
-                <div className="public-booking-row total"><span>Total</span><span>{formatPrice(totalAmount)}</span></div>
-              </>
-            )}
-
-            <div className="form-group" style={{ marginTop: 16 }}>
-              <label className="label">Coupon Code</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input className="input" placeholder="Enter code" value={couponCode} onChange={e => setCouponCode(e.target.value)} />
-                <button className="btn btn-secondary btn-sm" onClick={applyCoupon}>Apply</button>
-              </div>
-              {couponError && <div style={{ color: 'var(--error)', fontSize: '0.8rem', marginTop: 4 }}>{couponError}</div>}
-              {discount > 0 && <div style={{ color: 'var(--success)', fontSize: '0.8rem', marginTop: 4 }}>Saved {formatPrice(discount)}!</div>}
+        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+          {/* Main info */}
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              {[...Array(hotel.star_rating)].map((_, i) => <Star key={i} className="h-4 w-4 fill-[#c49c74] text-[#c49c74]" />)}
+              <span className="rounded-full bg-[#c49c74]/15 px-3 py-1 font-display text-sm font-bold text-[#c49c74]">{avgRating} ★</span>
+            </div>
+            <h1 className="font-display text-3xl font-bold text-[#252525] lg:text-4xl">{hotel.name}</h1>
+            <div className="mt-2 flex items-center gap-1 font-display text-base text-[#a1a7b0]">
+              <MapPin className="h-4 w-4" /> {hotel.address}
             </div>
 
-            <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 8 }} onClick={handleBook} disabled={!selectedRoom || !checkIn || !checkOut}>
-              {selectedRoom ? 'Book Now' : 'Select a room to book'}
-            </button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {hotel.amenities.map(a => {
+                const Icon = amenityIcons[a] || Check
+                return <span key={a} className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 font-display text-sm text-[#252525]"><Icon className="h-3.5 w-3.5" /> {a}</span>
+              })}
+            </div>
+
+            <div className="mt-8">
+              <h3 className="font-display text-xl font-bold text-[#252525]">About</h3>
+              <p className="mt-3 font-display text-base leading-relaxed text-[#252525]">{hotel.description}</p>
+            </div>
+
+            {/* Rooms */}
+            <div className="mt-8">
+              <h3 className="font-display text-xl font-bold text-[#252525]">Available Rooms</h3>
+              <div className="mt-4 space-y-4">
+                {rooms.map(room => (
+                  <div key={room.id} className={`rounded-2xl bg-white p-5 transition-all ${selectedRoom?.id === room.id ? 'ring-2 ring-[#c49c74]' : 'shadow-md'}`}>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-display text-lg font-bold text-[#252525]">{room.name}</h4>
+                        <div className="mt-2 flex flex-wrap gap-4 font-display text-sm text-[#a1a7b0]">
+                          <span className="flex items-center gap-1"><Users className="h-4 w-4" /> {room.max_guests} guests</span>
+                          <span className="flex items-center gap-1"><Bed className="h-4 w-4" /> {room.bed_type}</span>
+                          <span className="flex items-center gap-1"><Maximize className="h-4 w-4" /> {room.size_sqft} sqft</span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {room.amenities.map(a => <span key={a} className="rounded-full bg-[#f0efef] px-2.5 py-1 font-display text-xs text-[#252525]">{a}</span>)}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-display text-xl font-extrabold text-[#c49c74]">{formatPrice(room.base_price)}</div>
+                        <div className="font-display text-sm text-[#a1a7b0]">/night</div>
+                        <button onClick={() => setSelectedRoom(room)} className={`mt-3 rounded-lg px-4 py-2 font-display text-sm font-medium transition-colors ${selectedRoom?.id === room.id ? 'bg-[#c49c74] text-[#252525]' : 'bg-[#252525] text-white hover:bg-[#1c1c1c]'}`}>
+                          {selectedRoom?.id === room.id ? 'Selected' : 'Select'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Reviews */}
+            <div className="mt-8">
+              <h3 className="font-display text-xl font-bold text-[#252525]">Reviews ({reviews.length})</h3>
+              {reviews.length === 0 ? (
+                <p className="mt-3 font-display text-base text-[#a1a7b0]">No reviews yet.</p>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  {reviews.map(r => (
+                    <div key={r.id} className="rounded-2xl bg-white p-5 shadow-md">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#c49c74] font-display text-base font-bold text-white">{(r.reviewer || 'G')[0].toUpperCase()}</div>
+                        <div>
+                          <div className="font-display text-base font-bold text-[#252525]">{r.reviewer}</div>
+                          <div className="font-display text-sm text-[#a1a7b0]">{formatDate(r.created_at)}</div>
+                        </div>
+                        <span className="ml-auto rounded-full bg-[#c49c74]/15 px-3 py-1 font-display text-sm font-bold text-[#c49c74]">{r.rating} ★</span>
+                      </div>
+                      {r.title && <div className="mt-3 font-display text-base font-semibold text-[#252525]">{r.title}</div>}
+                      <p className="mt-1 font-display text-base text-[#252525]">{r.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Booking card */}
+          <div>
+            <div className="sticky top-24 rounded-2xl bg-white p-6 shadow-lg">
+              <div className="flex items-end gap-1">
+                <span className="font-display text-2xl font-extrabold text-[#c49c74]">{selectedRoom ? formatPrice(selectedRoom.base_price) : formatPrice(hotel.price_from)}</span>
+                <span className="font-display text-base text-[#a1a7b0]">/night</span>
+              </div>
+
+              <div className="my-6 h-px bg-[#f0efef]" />
+
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1 block font-display text-sm font-medium text-[#252525]">Check-in</label>
+                  <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} min={new Date().toISOString().split('T')[0]} className="h-11 w-full rounded-lg border-0 bg-[#f0efef] px-4 font-display text-base text-[#252525] outline-none" />
+                </div>
+                <div>
+                  <label className="mb-1 block font-display text-sm font-medium text-[#252525]">Check-out</label>
+                  <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} min={checkIn || new Date().toISOString().split('T')[0]} className="h-11 w-full rounded-lg border-0 bg-[#f0efef] px-4 font-display text-base text-[#252525] outline-none" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block font-display text-sm font-medium text-[#252525]">Guests</label>
+                    <select value={guests} onChange={e => setGuests(+e.target.value)} className="h-11 w-full rounded-lg border-0 bg-[#f0efef] px-3 font-display text-base text-[#252525] outline-none">
+                      {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Guest' : 'Guests'}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block font-display text-sm font-medium text-[#252525]">Rooms</label>
+                    <select value={roomsCount} onChange={e => setRoomsCount(+e.target.value)} className="h-11 w-full rounded-lg border-0 bg-[#f0efef] px-3 font-display text-base text-[#252525] outline-none">
+                      {[1,2,3].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Room' : 'Rooms'}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {selectedRoom && checkIn && checkOut && (
+                <>
+                  <div className="my-6 h-px bg-[#f0efef]" />
+                  <div className="space-y-2 font-display text-sm">
+                    <div className="flex justify-between"><span className="text-[#a1a7b0]">Base ({nights} nights × {roomsCount} rooms)</span><span className="text-[#252525]">{formatPrice(baseAmount)}</span></div>
+                    {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-{formatPrice(discount)}</span></div>}
+                    <div className="flex justify-between"><span className="text-[#a1a7b0]">Taxes (12%)</span><span className="text-[#252525]">{formatPrice(taxAmount)}</span></div>
+                    <div className="flex justify-between border-t border-[#f0efef] pt-2 text-base font-bold"><span className="text-[#252525]">Total</span><span className="text-[#c49c74]">{formatPrice(totalAmount)}</span></div>
+                  </div>
+                </>
+              )}
+
+              <div className="mt-4">
+                <label className="mb-1 block font-display text-sm font-medium text-[#252525]">Coupon Code</label>
+                <div className="flex gap-2">
+                  <input value={couponCode} onChange={e => setCouponCode(e.target.value)} placeholder="Enter code" className="h-11 flex-1 rounded-lg border-0 bg-[#f0efef] px-4 font-display text-base text-[#252525] outline-none placeholder:text-[#a1a7b0]" />
+                  <button onClick={applyCoupon} className="rounded-lg bg-[#252525] px-4 font-display text-sm font-medium text-white hover:bg-[#1c1c1c]">Apply</button>
+                </div>
+                {couponError && <p className="mt-1 font-display text-sm text-red-500">{couponError}</p>}
+                {discount > 0 && <p className="mt-1 font-display text-sm text-green-600">Saved {formatPrice(discount)}!</p>}
+              </div>
+
+              <button onClick={handleBook} disabled={!selectedRoom || !checkIn || !checkOut} className="mt-6 h-12 w-full rounded-xl bg-[#c49c74] font-display text-base font-medium text-[#252525] hover:bg-[#d0aa84] disabled:cursor-not-allowed disabled:opacity-50">
+                {selectedRoom ? 'Book Now' : 'Select a room to book'}
+              </button>
+              <p className="mt-2 text-center font-display text-xs text-[#a1a7b0]">Try coupons: WEEKEND20 or EARLY1000</p>
+            </div>
           </div>
         </div>
       </div>

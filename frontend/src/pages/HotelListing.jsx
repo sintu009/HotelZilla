@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { formatPrice } from '../lib/format'
-import { Star, MapPin, SlidersHorizontal } from 'lucide-react'
+import { Star, MapPin, SlidersHorizontal, CalendarDays, UsersRound } from 'lucide-react'
 
 const ALL_AMENITIES = ['Free WiFi', 'Swimming Pool', 'Spa', 'Restaurant', 'Bar', 'Gym', 'Parking', 'AC', 'Beach Access', 'Room Service']
 
@@ -20,7 +20,16 @@ export default function HotelListing() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const cityParam = searchParams.get('city') || ''
+  const checkin = searchParams.get('checkin') || ''
+  const checkout = searchParams.get('checkout') || ''
+  const rooms = searchParams.get('rooms') || '1'
+  const adults = searchParams.get('adults') || '1'
+  const children = searchParams.get('children') || '0'
   const [city, setCity] = useState(cityParam)
+
+  const formatDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+  const nights = checkin && checkout ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / 86400000)) : null
+  const guestLabel = `${rooms} Room${+rooms > 1 ? 's' : ''}, ${adults} Adult${+adults > 1 ? 's' : ''}${+children > 0 ? `, ${children} Child${+children > 1 ? 'ren' : ''}` : ''}`
   const [sortBy, setSortBy] = useState('recommended')
   const [priceRange, setPriceRange] = useState([0, 50000])
   const [selectedAmenities, setSelectedAmenities] = useState([])
@@ -67,8 +76,14 @@ export default function HotelListing() {
 
   return (
     <div className="container">
-      <div style={{ paddingTop: 24 }}>
-        <input className="input" placeholder="Search by city..." value={city} onChange={e => setCity(e.target.value)} style={{ maxWidth: 400 }} />
+      <div style={{ paddingTop: 24, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+        <input className="input" placeholder="Search by city..." value={city} onChange={e => setCity(e.target.value)} style={{ maxWidth: 280 }} />
+        {checkin && checkout && (
+          <span className="search-param-badge">
+            <CalendarDays size={13} /> {formatDate(checkin)} – {formatDate(checkout)}{nights ? ` · ${nights} night${nights > 1 ? 's' : ''}` : ''}
+          </span>
+        )}
+        <span className="search-param-badge"><UsersRound size={13} /> {guestLabel}</span>
       </div>
       <div className="listing-layout">
         <div className="filter-sidebar" style={{ display: showFilters ? 'block' : undefined }}>

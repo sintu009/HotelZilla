@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { formatPrice } from '../lib/format'
-import { Star, MapPin, Coffee, Save as Waves, ArrowRight, Search, CalendarDays, UsersRound, Gift } from 'lucide-react'
+import { Star, MapPin, Coffee, Save as Waves, ArrowRight, Search, CalendarDays, UsersRound, Gift, ChevronDown } from 'lucide-react'
 
 const MOCK_HOTELS = [
   { id: '1', name: 'The Grand Palace', city: 'Mumbai', state: 'Maharashtra', star_rating: 5, price_from: 8500, amenities: ['Free WiFi', 'Swimming Pool', 'Restaurant'], cover_image: 'https://images.treebohotels.com/images/Masthead-Jul-Web-Masthead.jpg' },
@@ -24,14 +24,50 @@ const MOCK_OFFERS = [
   { id: 2, title: 'Early Bird Deal', description: 'Book 30 days in advance and get flat ₹1000 off', code: 'EARLY1000', image_url: 'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg' },
 ]
 
+const today = new Date().toISOString().split('T')[0]
+const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+
 export default function Landing() {
   const navigate = useNavigate()
   const [searchCity, setSearchCity] = useState('')
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false)
+  const [checkin, setCheckin] = useState(today)
+  const [checkout, setCheckout] = useState(tomorrow)
+  const [showDatePanel, setShowDatePanel] = useState(false)
+  const [showGuestPanel, setShowGuestPanel] = useState(false)
+  const [rooms, setRooms] = useState(1)
+  const [adults, setAdults] = useState(1)
+  const [children, setChildren] = useState(0)
+  const datePanelRef = useRef(null)
+  const guestPanelRef = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (datePanelRef.current && !datePanelRef.current.contains(e.target)) setShowDatePanel(false)
+      if (guestPanelRef.current && !guestPanelRef.current.contains(e.target)) setShowGuestPanel(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
-    navigate(`/hotels${searchCity ? `?city=${encodeURIComponent(searchCity)}` : ''}`)
+    const params = new URLSearchParams()
+    if (searchCity) params.set('city', searchCity)
+    if (checkin) params.set('checkin', checkin)
+    if (checkout) params.set('checkout', checkout)
+    params.set('rooms', rooms)
+    params.set('adults', adults)
+    params.set('children', children)
+    navigate(`/hotels?${params.toString()}`)
   }
+
+  const formatDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+  const nights = checkin && checkout ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / 86400000)) : 1
+  const guestLabel = `${rooms} Room${rooms > 1 ? 's' : ''}, ${adults} Adult${adults > 1 ? 's' : ''}${children > 0 ? `, ${children} Child${children > 1 ? 'ren' : ''}` : ''}`
+
+  const allCities = [...new Set(MOCK_HOTELS.map(h => h.city))]
+  const citySuggestions = searchCity ? allCities.filter(c => c.toLowerCase().includes(searchCity.toLowerCase())) : allCities
 
   const cityNames = MOCK_DESTINATIONS.map(d => d.name)
 
@@ -44,27 +80,88 @@ export default function Landing() {
           {/* <h1>Find Your Perfect Stay</h1>
           <p>Discover and book from thousands of hotels worldwide</p> */}
           <form className="search-bar" onSubmit={handleSearch} style={{ marginTop: 8 }}>
-            <div className="search-field search-location">
+            {/* Destination */}
+            <div className="search-field search-location" style={{ position: 'relative' }}>
               <span className="search-icon"><MapPin size={22} /></span>
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <label className="label">Destination</label>
-                <input placeholder="Search by city, hotel, or location" value={searchCity} onChange={e => setSearchCity(e.target.value)} />
+                <input
+                  placeholder="Search by city, hotel, or location"
+                  value={searchCity}
+                  onChange={e => { setSearchCity(e.target.value); setShowCitySuggestions(true) }}
+                  onFocus={() => setShowCitySuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                  autoComplete="off"
+                />
               </div>
+              {showCitySuggestions && citySuggestions.length > 0 && (
+                <div className="search-dropdown">
+                  {citySuggestions.map(city => (
+                    <div key={city} className="search-dropdown-item" onMouseDown={() => { setSearchCity(city); setShowCitySuggestions(false) }}>
+                      <MapPin size={13} style={{ marginRight: 6, flexShrink: 0 }} />{city}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="search-field search-dates">
+
+            {/* Dates */}
+            <div className="search-field search-dates" ref={datePanelRef} style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setShowDatePanel(p => !p); setShowGuestPanel(false) }}>
               <span className="search-icon"><CalendarDays size={22} /></span>
-              <div>
-                <label className="label">Check-in and Check-out</label>
-                <div className="search-value">Select your dates</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <label className="label" style={{ pointerEvents: 'none' }}>Check-in — Check-out</label>
+                <div className="search-value">{checkin && checkout ? `${formatDate(checkin)} – ${formatDate(checkout)}` : 'Select your dates'}</div>
               </div>
+              <ChevronDown size={14} style={{ color: '#a8aeac', flexShrink: 0 }} />
+              {showDatePanel && (
+                <div className="search-dropdown date-panel" onClick={e => e.stopPropagation()}>
+                  <div className="date-panel-row">
+                    <div className="date-panel-field">
+                      <label className="label">Check-in</label>
+                      <input type="date" className="input" value={checkin} min={today} onChange={e => {
+                        setCheckin(e.target.value)
+                        if (e.target.value >= checkout) setCheckout(new Date(new Date(e.target.value).getTime() + 86400000).toISOString().split('T')[0])
+                      }} />
+                    </div>
+                    <div className="date-panel-field">
+                      <label className="label">Check-out</label>
+                      <input type="date" className="input" value={checkout} min={checkin || today} onChange={e => setCheckout(e.target.value)} />
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 8 }}>{nights} night{nights > 1 ? 's' : ''}</div>
+                  <button type="button" className="btn btn-primary btn-sm" style={{ marginTop: 12, width: '100%' }} onClick={() => setShowDatePanel(false)}>Done</button>
+                </div>
+              )}
             </div>
-            <div className="search-field search-guests">
+
+            {/* Guests */}
+            <div className="search-field search-guests" ref={guestPanelRef} style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setShowGuestPanel(p => !p); setShowDatePanel(false) }}>
               <span className="search-icon"><UsersRound size={22} /></span>
-              <div>
-                <label className="label">Rooms & Guests</label>
-                <div className="search-value">1 Room, 1 Adult</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <label className="label" style={{ pointerEvents: 'none' }}>Rooms & Guests</label>
+                <div className="search-value">{guestLabel}</div>
               </div>
+              <ChevronDown size={14} style={{ color: '#a8aeac', flexShrink: 0 }} />
+              {showGuestPanel && (
+                <div className="search-dropdown guest-panel" onClick={e => e.stopPropagation()}>
+                  {[['Rooms', rooms, setRooms, 1, 10], ['Adults', adults, setAdults, 1, 10], ['Children', children, setChildren, 0, 6]].map(([label, val, setter, min, max]) => (
+                    <div key={label} className="guest-row">
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{label}</div>
+                        {label === 'Children' && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ages 0–12</div>}
+                      </div>
+                      <div className="guest-counter">
+                        <button type="button" className="guest-btn" onClick={() => setter(v => Math.max(min, v - 1))} disabled={val <= min}>−</button>
+                        <span>{val}</span>
+                        <button type="button" className="guest-btn" onClick={() => setter(v => Math.min(max, v + 1))} disabled={val >= max}>+</button>
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" className="btn btn-primary btn-sm" style={{ marginTop: 12, width: '100%' }} onClick={() => setShowGuestPanel(false)}>Done</button>
+                </div>
+              )}
             </div>
+
             <button type="submit" className="search-submit" aria-label="Search hotels"><Search size={24} /></button>
           </form>
         </div>

@@ -44,7 +44,7 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public website */}
-      <Route path="/" element={<PublicLayout><PublicLanding /></PublicLayout>} />
+      <Route path="/" element={<PublicLanding />} />
       <Route path="/hotels" element={<PublicLayout><PublicHotelListing /></PublicLayout>} />
       <Route path="/hotels/:id" element={<PublicLayout><PublicHotelDetail /></PublicLayout>} />
       <Route path="/booking" element={<PublicLayout><PublicBooking /></PublicLayout>} />

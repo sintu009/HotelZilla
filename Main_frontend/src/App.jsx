@@ -1,25 +1,49 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { ToastProvider } from './components/Toast'
 import { AuthProvider } from './lib/auth'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import Landing from './pages/Landing'
-import HotelListing from './pages/HotelListing'
-import HotelDetail from './pages/HotelDetail'
-import Booking from './pages/Booking'
-import Login from './pages/Login'
-import SignUp from './pages/SignUp'
-import Offers from './pages/Offers'
-import MyBookings from './pages/MyBookings'
-import { useEffect, useState } from 'react'
 import client from './api/client'
 
+const Landing           = lazy(() => import('./pages/Landing'))
+const HotelListing      = lazy(() => import('./pages/HotelListing'))
+const HotelDetail       = lazy(() => import('./pages/HotelDetail'))
+const Booking           = lazy(() => import('./pages/Booking'))
+const Login             = lazy(() => import('./pages/Login'))
+const SignUp            = lazy(() => import('./pages/SignUp'))
+const Offers            = lazy(() => import('./pages/Offers'))
+const MyBookings        = lazy(() => import('./pages/MyBookings'))
+const About             = lazy(() => import('./pages/About'))
+const Careers           = lazy(() => import('./pages/Careers'))
+const Press             = lazy(() => import('./pages/Press'))
+const Blog              = lazy(() => import('./pages/Blog'))
+const HelpCenter        = lazy(() => import('./pages/HelpCenter'))
+const CancellationPolicy = lazy(() => import('./pages/CancellationPolicy'))
+const RefundPolicy      = lazy(() => import('./pages/RefundPolicy'))
+const Contact           = lazy(() => import('./pages/Contact'))
+const TermsConditions   = lazy(() => import('./pages/TermsConditions'))
+const PrivacyPolicy     = lazy(() => import('./pages/PrivacyPolicy'))
+const Disclaimer        = lazy(() => import('./pages/Disclaimer'))
+const Sitemap           = lazy(() => import('./pages/Sitemap'))
+const RegisterHotel     = lazy(() => import('./pages/RegisterHotel'))
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
+
+let cachedPhone = null
+
 function WhatsAppButton() {
-  const [phone, setPhone] = useState('919876969684')
+  const [phone, setPhone] = useState(cachedPhone || '919876969684')
   useEffect(() => {
+    if (cachedPhone) return
     client.get('/api/admin/cms/public/homepage')
-      .then(r => { if (r?.whatsapp_number) setPhone(r.whatsapp_number.replace(/\D/g, '')) })
-      .catch(() => { })
+      .then(r => { if (r?.whatsapp_number) { cachedPhone = r.whatsapp_number.replace(/\D/g, ''); setPhone(cachedPhone) } })
+      .catch(() => {})
   }, [])
   return (
     <a
@@ -50,29 +74,45 @@ function WhatsAppButton() {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <ToastProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/*" element={
-              <>
-                <Header />
-                <main style={{ minHeight: '60vh' }}>
-                  <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/hotels" element={<HotelListing />} />
-                    <Route path="/hotels/:id" element={<HotelDetail />} />
-                    <Route path="/booking" element={<Booking />} />
-                    <Route path="/offers" element={<Offers />} />
-                    <Route path="/my-bookings" element={<MyBookings />} />
-                  </Routes>
-                </main>
-                <Footer />
-                <WhatsAppButton />
-              </>
-            } />
-          </Routes>
+          <Suspense fallback={<div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span className="spinner" /></div>}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/*" element={
+                <>
+                  <Header />
+                  <main style={{ minHeight: '60vh' }}>
+                    <Routes>
+                      <Route path="/" element={<Landing />} />
+                      <Route path="/hotels" element={<HotelListing />} />
+                      <Route path="/hotels/:id" element={<HotelDetail />} />
+                      <Route path="/booking" element={<Booking />} />
+                      <Route path="/offers" element={<Offers />} />
+                      <Route path="/my-bookings" element={<MyBookings />} />
+                      <Route path="/register-hotel" element={<RegisterHotel />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/careers" element={<Careers />} />
+                      <Route path="/press" element={<Press />} />
+                      <Route path="/blog" element={<Blog />} />
+                      <Route path="/help" element={<HelpCenter />} />
+                      <Route path="/cancellation" element={<CancellationPolicy />} />
+                      <Route path="/refund-policy" element={<RefundPolicy />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/terms" element={<TermsConditions />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
+                      <Route path="/disclaimer" element={<Disclaimer />} />
+                      <Route path="/sitemap" element={<Sitemap />} />
+                    </Routes>
+                  </main>
+                  <Footer />
+                  <WhatsAppButton />
+                </>
+              } />
+            </Routes>
+          </Suspense>
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

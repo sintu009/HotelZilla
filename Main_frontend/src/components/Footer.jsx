@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Hotel, Mail, Phone, MapPin, Building2, ChevronDown, ChevronUp } from 'lucide-react'
 import client from '../api/client'
 
@@ -133,17 +134,17 @@ export default function Footer() {
           </div>
           <div className="footer-col">
             <h4>Company</h4>
-            <a href="#">About Us</a>
-            <a href="#">Careers</a>
-            <a href="#">Press</a>
-            <a href="#">Blog</a>
+            <Link to="/about">About Us</Link>
+            <Link to="/careers">Careers</Link>
+            <Link to="/press">Press</Link>
+            <Link to="/blog">Blog</Link>
           </div>
           <div className="footer-col">
             <h4>Support</h4>
-            <a href="#">Help Center</a>
-            <a href="#">Cancellation</a>
-            <a href="#">Refund Policy</a>
-            <a href="#">Contact Us</a>
+            <Link to="/help">Help Center</Link>
+            <Link to="/cancellation">Cancellation</Link>
+            <Link to="/refund-policy">Refund Policy</Link>
+            <Link to="/contact">Contact Us</Link>
           </div>
           <div className="footer-col">
             <h4>Contact</h4>
@@ -154,6 +155,12 @@ export default function Footer() {
         </div>
         <div className="footer-bottom">
           © 2026 HotelZilla. All rights reserved.
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
+            <Link to="/terms" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Terms &amp; Conditions</Link>
+            <Link to="/privacy" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Privacy Policy</Link>
+            <Link to="/disclaimer" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Disclaimer</Link>
+            <Link to="/sitemap" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Sitemap</Link>
+          </div>
         </div>
       </div>
     </footer>

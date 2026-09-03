@@ -95,6 +95,15 @@ CREATE TABLE IF NOT EXISTS reviews (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Performance indexes
+CREATE INDEX IF NOT EXISTS idx_hotels_status_open   ON hotels(status, is_open);
+CREATE INDEX IF NOT EXISTS idx_hotels_city          ON hotels(LOWER(city));
+CREATE INDEX IF NOT EXISTS idx_rooms_hotel_id       ON rooms(hotel_id);
+CREATE INDEX IF NOT EXISTS idx_rooms_hotel_avail    ON rooms(hotel_id, is_available);
+CREATE INDEX IF NOT EXISTS idx_reviews_hotel_id     ON reviews(hotel_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id     ON bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_hotel_id    ON bookings(hotel_id);
+
 -- Coupons
 CREATE TABLE IF NOT EXISTS coupons (
   id              SERIAL PRIMARY KEY,

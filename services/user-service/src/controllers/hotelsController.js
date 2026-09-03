@@ -20,7 +20,8 @@ exports.searchHotels = async (req, res, next) => {
   try {
     const { rows } = await db.query(
       `SELECT h.*, AVG(r.rating) AS avg_rating, COUNT(r.id) AS review_count,
-              MIN(rm.price_per_night) AS price_from
+              MIN(rm.price_per_night) AS price_from,
+              COUNT(*) OVER() AS total_count
        FROM hotels h
        LEFT JOIN reviews r ON r.hotel_id = h.id
        LEFT JOIN rooms rm ON rm.hotel_id = h.id AND rm.is_available = true
@@ -30,24 +31,22 @@ exports.searchHotels = async (req, res, next) => {
        LIMIT $2 OFFSET $3`,
       [city || null, limit, offset]
     );
-    const { rows: [{ count }] } = await db.query(
-      "SELECT COUNT(*) FROM hotels WHERE status='approved' AND is_open=true AND ($1::text IS NULL OR LOWER(city)=LOWER($1))",
-      [city || null]
-    );
-    res.json({ data: rows, total: parseInt(count), page: parseInt(page), limit: parseInt(limit) });
+    res.json({ data: rows, total: parseInt(rows[0]?.total_count || 0), page: parseInt(page), limit: parseInt(limit) });
   } catch (err) { next(err); }
 };
 
 exports.getHotelById = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const hotel = await db.query("SELECT * FROM hotels WHERE id=$1 AND status='approved'", [id]);
+    const [hotel, rooms, reviews] = await Promise.all([
+      db.query("SELECT * FROM hotels WHERE id=$1 AND status='approved'", [id]),
+      db.query("SELECT * FROM rooms WHERE hotel_id=$1 AND is_available=true", [id]),
+      db.query(
+        "SELECT r.*, u.name AS customer_name FROM reviews r JOIN users u ON r.user_id=u.id WHERE r.hotel_id=$1 ORDER BY r.created_at DESC LIMIT 20",
+        [id]
+      ),
+    ]);
     if (!hotel.rows[0]) return res.status(404).json({ status: "error", code: "NOT_FOUND", message: "Hotel not found" });
-    const rooms   = await db.query("SELECT * FROM rooms WHERE hotel_id=$1 AND is_available=true", [id]);
-    const reviews = await db.query(
-      "SELECT r.*, u.name AS customer_name FROM reviews r JOIN users u ON r.user_id=u.id WHERE r.hotel_id=$1 ORDER BY r.created_at DESC LIMIT 20",
-      [id]
-    );
     res.json({ hotel: hotel.rows[0], rooms: rooms.rows, reviews: reviews.rows });
   } catch (err) { next(err); }
 };

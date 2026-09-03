@@ -16,9 +16,16 @@ export default function HotelListing() {
   const rooms = searchParams.get('rooms') || '1'
   const adults = searchParams.get('adults') || '1'
   const children = searchParams.get('children') || '0'
+  const [cityInput, setCityInput] = useState(cityParam)
   const [city, setCity] = useState(cityParam)
   const [allHotels, setAllHotels] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Debounce city input — only fires API call 400ms after user stops typing
+  useEffect(() => {
+    const t = setTimeout(() => setCity(cityInput), 400)
+    return () => clearTimeout(t)
+  }, [cityInput])
 
   const { sortBy, priceRange, selectedAmenities, minStars, showFilters, setSortBy, setPriceRange, setMinStars, toggleShowFilters, toggleAmenity, clearFilters } = useSearchStore()
 
@@ -76,7 +83,7 @@ export default function HotelListing() {
   return (
     <div className="container">
       <div style={{ paddingTop: 24, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
-        <input className="input" placeholder="Search by city..." value={city} onChange={e => setCity(e.target.value)} style={{ maxWidth: 280 }} />
+        <input className="input" placeholder="Search by city..." value={cityInput} onChange={e => setCityInput(e.target.value)} style={{ maxWidth: 280 }} />
         {checkin && checkout && (
           <span className="search-param-badge">
             <CalendarDays size={13} /> {formatDate(checkin)} – {formatDate(checkout)}{nights ? ` · ${nights} night${nights > 1 ? 's' : ''}` : ''}
@@ -120,7 +127,7 @@ export default function HotelListing() {
             <div className="hotel-grid">
               {filtered.map(hotel => (
                 <div key={hotel.id} className="card hotel-card" onClick={() => navigate(`/hotels/${hotel.id}`)}>
-                  <img className="hotel-card-img" src={hotel.cover_image || hotel.images?.[0] || 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg'} alt={hotel.name} />
+                  <img className="hotel-card-img" loading="lazy" src={hotel.cover_image || hotel.images?.[0] || 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg'} alt={hotel.name} />
                   <div className="hotel-card-body">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                       {[...Array(hotel.star_rating || 3)].map((_, i) => <Star key={i} size={12} className="star" fill="currentColor" />)}

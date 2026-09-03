@@ -69,10 +69,49 @@ export default function Landing() {
   })
 
   useEffect(() => {
+    // Hotels — no cache, always fresh
     hotelsApi.search().then(r => setHotels(r.data || [])).catch(() => {})
-    client.get('/api/admin/cms/public/destinations').then(r => { const d = r.data || r; if (Array.isArray(d) && d.length) setDestinations(d) }).catch(() => {})
-    client.get('/api/admin/cms/public/offers').then(r => { const d = r.data || r; if (Array.isArray(d) && d.length) setOffers(d) }).catch(() => {})
-    client.get('/api/admin/cms/public/homepage').then(r => { if (r && Object.keys(r).length) setCmsContent(p => ({ ...p, ...r })) }).catch(() => {})
+
+    // Destinations — cache in sessionStorage
+    const cachedDest = sessionStorage.getItem('cms_destinations')
+    if (cachedDest) {
+      setDestinations(JSON.parse(cachedDest))
+    } else {
+      client.get('/api/admin/cms/public/destinations').then(r => {
+        const d = r.data || r
+        if (Array.isArray(d) && d.length) {
+          setDestinations(d)
+          sessionStorage.setItem('cms_destinations', JSON.stringify(d))
+        }
+      }).catch(() => {})
+    }
+
+    // Offers — cache in sessionStorage
+    const cachedOffers = sessionStorage.getItem('cms_offers')
+    if (cachedOffers) {
+      setOffers(JSON.parse(cachedOffers))
+    } else {
+      client.get('/api/admin/cms/public/offers').then(r => {
+        const d = r.data || r
+        if (Array.isArray(d) && d.length) {
+          setOffers(d)
+          sessionStorage.setItem('cms_offers', JSON.stringify(d))
+        }
+      }).catch(() => {})
+    }
+
+    // Homepage CMS — cache in sessionStorage
+    const cachedCms = sessionStorage.getItem('cms_homepage')
+    if (cachedCms) {
+      setCmsContent(p => ({ ...p, ...JSON.parse(cachedCms) }))
+    } else {
+      client.get('/api/admin/cms/public/homepage').then(r => {
+        if (r && Object.keys(r).length) {
+          setCmsContent(p => ({ ...p, ...r }))
+          sessionStorage.setItem('cms_homepage', JSON.stringify(r))
+        }
+      }).catch(() => {})
+    }
   }, [])
 
   useEffect(() => {
@@ -253,7 +292,7 @@ export default function Landing() {
             {hotels.slice(0, 8).map(hotel => (
               <div key={hotel.id} className="lp-hotel-card" onClick={() => navigate(`/hotels/${hotel.id}`)}>
                 <div className="lp-hotel-img-wrap">
-                  <img className="lp-hotel-img"
+                  <img className="lp-hotel-img" loading="lazy"
                     src={hotel.cover_image || hotel.images?.[0] || 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg'}
                     alt={hotel.name} />
                   {hotel.star_rating && (
@@ -309,7 +348,7 @@ export default function Landing() {
                   className={`lp-dest-card-new${i === 0 ? ' lp-dest-card-new--featured' : ''}`}
                   onClick={() => navigate(`/hotels?city=${encodeURIComponent(d.name)}`)}
                 >
-                  <img src={d.image_url} alt={d.name} />
+                  <img src={d.image_url} loading="lazy" alt={d.name} />
                   <div className="lp-dest-card-overlay">
                     <div className="lp-dest-card-name">{d.name}</div>
                     <div className="lp-dest-card-count"><MapPin size={11}/>{d.hotel_count}+ Hotels</div>
@@ -333,7 +372,7 @@ export default function Landing() {
             <div className="lp-oz-grid">
               {/* Featured big offer */}
               <div className="lp-oz-featured" onClick={() => navigate('/offers')}>
-                <img src={offers[0]?.image_url} alt={offers[0]?.title} />
+                <img src={offers[0]?.image_url} loading="lazy" alt={offers[0]?.title} />
                 <div className="lp-oz-overlay">
                   {offers[0]?.code && <span className="lp-oz-badge">{offers[0].code}</span>}
                   <div className="lp-oz-title">{offers[0]?.title}</div>
@@ -346,7 +385,7 @@ export default function Landing() {
                 {offers.slice(1, 4).map(o => (
                   <div key={o.id} className="lp-oz-card" onClick={() => navigate('/offers')}>
                     <div className="lp-oz-card-img">
-                      <img src={o.image_url} alt={o.title} />
+                      <img src={o.image_url} loading="lazy" alt={o.title} />
                     </div>
                     <div className="lp-oz-card-body">
                       {o.code && <span className="lp-oz-card-badge">{o.code}</span>}

@@ -1,0 +1,109 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────
+#  Database mode toggle (set in .env file)
+#
+#  USE_SUPABASE=false  →  local postgres container is used
+#  USE_SUPABASE=true   →  Supabase is used, postgres container is skipped
+#                         (just don't start it: docker compose up gateway admin-service ...)
+# ─────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Local postgres (only used when USE_SUPABASE=false) ──────────
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    profiles: ["local"]
+    environment:
+      POSTGRES_USER:     ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB:       ${DB_NAME:-hotelzilla}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # ── Gateway ─────────────────────────────────────────────────────
+  gateway:
+    build: ./services/gateway
+    ports:
+      - "4000:4000"
+    environment:
+      ADMIN_SERVICE_URL: http://admin-service:4001
+      USER_SERVICE_URL:  http://user-service:4002
+      HOTEL_SERVICE_URL: http://hotel-service:4003
+    depends_on:
+      - admin-service
+      - user-service
+      - hotel-service
+
+  # ── Admin service ────────────────────────────────────────────────
+  admin-service:
+    build:
+      context: ./services
+      dockerfile: admin-service/Dockerfile
+    ports:
+      - "4001:4001"
+    environment:
+      PORT:         4001
+      JWT_SECRET:   ${JWT_SECRET:-supersecret}
+      USE_SUPABASE: ${USE_SUPABASE:-false}
+      # Supabase
+      DATABASE_URL: ${DATABASE_URL:-}
+      # Local postgres
+      DB_HOST:      postgres
+      DB_USER:      ${DB_USER:-postgres}
+      DB_PASSWORD:  ${DB_PASSWORD:-postgres}
+      DB_NAME:      ${DB_NAME:-hotelzilla}
+
+  # ── User service ─────────────────────────────────────────────────
+  user-service:
+    build:
+      context: ./services
+      dockerfile: user-service/Dockerfile
+    ports:
+      - "4002:4002"
+    environment:
+      PORT:         4002
+      JWT_SECRET:   ${JWT_SECRET:-supersecret}
+      USE_SUPABASE: ${USE_SUPABASE:-false}
+      # Supabase
+      DATABASE_URL: ${DATABASE_URL:-}
+      # Local postgres
+      DB_HOST:      postgres
+      DB_USER:      ${DB_USER:-postgres}
+      DB_PASSWORD:  ${DB_PASSWORD:-postgres}
+      DB_NAME:      ${DB_NAME:-hotelzilla}
+
+  # ── Hotel service ─────────────────────────────────────────────────
+  hotel-service:
+    build:
+      context: ./services
+      dockerfile: hotel-service/Dockerfile
+    ports:
+      - "4003:4003"
+    environment:
+      PORT:         4003
+      JWT_SECRET:   ${JWT_SECRET:-supersecret}
+      USE_SUPABASE: ${USE_SUPABASE:-false}
+      # Supabase
+      DATABASE_URL: ${DATABASE_URL:-}
+      # Local postgres
+      DB_HOST:      postgres
+      DB_USER:      ${DB_USER:-postgres}
+      DB_PASSWORD:  ${DB_PASSWORD:-postgres}
+      DB_NAME:      ${DB_NAME:-hotelzilla}
+
+  # ── Realtime service ──────────────────────────────────────────────
+  realtime-service:
+    build: ./services/realtime-service
+    ports:
+      - "4004:4004"
+    environment:
+      PORT:       4004
+      JWT_SECRET: ${JWT_SECRET:-supersecret}
+
+volumes:
+  pgdata:

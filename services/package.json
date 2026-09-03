@@ -1,0 +1,15 @@
+{
+  "name": "hotelzilla-services",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix gateway run dev\" \"npm --prefix admin-service run dev\" \"npm --prefix user-service run dev\" \"npm --prefix hotel-service run dev\" \"npm --prefix realtime-service run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.5",
+    "@supabase/supabase-js": "^2.114.0",
+    "zod": "^4.5.4"
+  }
+}

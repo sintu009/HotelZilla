@@ -1,74 +1,101 @@
 import { useState } from 'react'
-import { BOOKINGS } from '../lib/mockData'
+import { bookingsApi } from '../lib/api'
+import { useFetch } from '../lib/useFetch'
 import { formatPrice, formatDate } from '../lib/format'
-import { Search, Eye } from 'lucide-react'
+import { Search, Eye, Check, LogIn, LogOut, X } from 'lucide-react'
 import { useToast } from '../components/Toast'
 import ConfirmModal from '../components/ConfirmModal'
 
-const STATUS_BADGE = { confirmed: 'badge-success', cancelled: 'badge-error', completed: 'badge-info', pending: 'badge-warning', no_show: 'badge-neutral' }
+const STATUS_BADGE = { confirmed: 'badge-success', cancelled: 'badge-error', checked_out: 'badge-info', pending: 'badge-warning', checked_in: 'badge-info' }
+
+const ACTIONS = {
+  pending:    [{ label: 'Confirm',    icon: Check,   next: 'confirmed',   cls: 'btn-success' }, { label: 'Cancel', icon: X, next: 'cancelled', cls: 'btn-danger' }],
+  confirmed:  [{ label: 'Check In',  icon: LogIn,   next: 'checked_in',  cls: 'btn-primary' }, { label: 'Cancel', icon: X, next: 'cancelled', cls: 'btn-danger' }],
+  checked_in: [{ label: 'Check Out', icon: LogOut,  next: 'checked_out', cls: 'btn-primary' }],
+  checked_out: [],
+  cancelled:  [],
+}
 
 export default function Bookings() {
   const toast = useToast()
-  const [rows, setRows] = useState(BOOKINGS)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [selected, setSelected] = useState(null)
+  const [search, setSearch]               = useState('')
+  const [statusFilter, setStatusFilter]   = useState('')
+  const [selected, setSelected]           = useState(null)
   const [confirmCancel, setConfirmCancel] = useState(null)
-  const [confirmComplete, setConfirmComplete] = useState(null)
+  const [acting, setActing]               = useState(false)
 
-  const filtered = rows.filter(b => {
-    const ms = !search || b.booking_reference.toLowerCase().includes(search.toLowerCase()) || b.hotel_name.toLowerCase().includes(search.toLowerCase()) || b.guest_name.toLowerCase().includes(search.toLowerCase())
+  const { data, loading, error, refetch } = useFetch(() => bookingsApi.list(1, 100))
+  const allRows = data?.data ?? []
+
+  const rows = allRows.filter(b => {
+    const ms  = !search || String(b.id).includes(search) || b.hotel_name?.toLowerCase().includes(search.toLowerCase()) || b.customer_name?.toLowerCase().includes(search.toLowerCase())
     const mst = !statusFilter || b.status === statusFilter
     return ms && mst
   })
 
-  const updateStatus = (b, status) => {
-    setRows(prev => prev.map(r => r.id === b.id ? { ...r, status } : r))
-    setSelected(prev => prev?.id === b.id ? { ...prev, status } : prev)
-    if (status === 'cancelled') toast.error('Booking Cancelled', `Booking ${b.booking_reference} has been cancelled.`)
-    if (status === 'completed') toast.success('Booking Completed', `Booking ${b.booking_reference} marked as completed.`)
+  const updateStatus = async (booking, newStatus) => {
+    setActing(true)
+    try {
+      await bookingsApi.updateStatus(booking.id, newStatus)
+      const labels = { confirmed: 'Confirmed', cancelled: 'Cancelled', checked_in: 'Checked In', checked_out: 'Checked Out' }
+      toast.success(labels[newStatus] || newStatus, `Booking #${booking.id} updated.`)
+      refetch()
+      setSelected(s => s ? { ...s, status: newStatus } : null)
+    } catch (err) {
+      toast.error('Error', err.message)
+    } finally {
+      setActing(false)
+      setConfirmCancel(null)
+    }
   }
+
+  const cancelBooking = async (b) => updateStatus(b, 'cancelled')
 
   return (
     <div>
       <div className="page-header">
-        <div><div className="page-title">Bookings</div><div className="page-subtitle">{filtered.length} bookings</div></div>
+        <div><div className="page-title">Bookings</div><div className="page-subtitle">{rows.length} bookings</div></div>
       </div>
 
       <div className="filter-bar">
         <div style={{ position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: 'var(--text-muted)' }} />
-          <input className="input" style={{ paddingLeft: 32 }} placeholder="Search by ref, hotel, or guest..." value={search} onChange={e => setSearch(e.target.value)} />
+          <input className="input" style={{ paddingLeft: 32 }} placeholder="Search by ID, hotel, or guest..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select className="input" style={{ width: 160 }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
-          <option value="completed">Completed</option>
+          <option value="checked_in">Checked In</option>
+          <option value="checked_out">Checked Out</option>
           <option value="cancelled">Cancelled</option>
-          <option value="no_show">No Show</option>
         </select>
       </div>
 
       <div className="card">
         <div className="table-wrapper">
           <table className="table">
-            <thead><tr><th>Reference</th><th>Hotel</th><th>Guest</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>#ID</th><th>Hotel</th><th>Guest</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
-              {filtered.length === 0
-                ? <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No bookings found</td></tr>
-                : filtered.map(b => (
-                  <tr key={b.id}>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{b.booking_reference}</td>
-                    <td style={{ fontWeight: 600 }}>{b.hotel_name}</td>
-                    <td>{b.guest_name}</td>
-                    <td>{formatDate(b.check_in)}</td>
-                    <td>{formatDate(b.check_out)}</td>
-                    <td>{formatPrice(b.total_amount)}</td>
-                    <td><span className={`badge ${STATUS_BADGE[b.status] || 'badge-neutral'}`}>{b.status}</span></td>
-                    <td><button className="btn btn-ghost btn-sm" onClick={() => setSelected(b)}><Eye size={14} /></button></td>
-                  </tr>
-                ))}
+              {loading
+                ? <tr><td colSpan={8} style={{ textAlign: 'center' }}><span className="spinner" /></td></tr>
+                : error
+                  ? <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--error)' }}>{error}</td></tr>
+                  : rows.length === 0
+                    ? <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No bookings found</td></tr>
+                    : rows.map(b => (
+                      <tr key={b.id}>
+                        <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>#{b.id}</td>
+                        <td style={{ fontWeight: 600 }}>{b.hotel_name}</td>
+                        <td>{b.customer_name}</td>
+                        <td>{formatDate(b.checkin_date)}</td>
+                        <td>{formatDate(b.checkout_date)}</td>
+                        <td>{formatPrice(b.amount)}</td>
+                        <td><span className={`badge ${STATUS_BADGE[b.status] || 'badge-neutral'}`}>{b.status}</span></td>
+                        <td><button className="btn btn-ghost btn-sm" onClick={() => setSelected(b)}><Eye size={14} /></button></td>
+                      </tr>
+                    ))
+              }
             </tbody>
           </table>
         </div>
@@ -80,35 +107,26 @@ export default function Bookings() {
             <div className="modal-header"><h3>Booking Details</h3><button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}>✕</button></div>
             <div className="modal-body">
               {[
-                ['Reference', selected.booking_reference],
+                ['Booking ID', `#${selected.id}`],
                 ['Hotel', selected.hotel_name],
-                ['Room', selected.room_name],
-                ['Guest', `${selected.guest_name} (${selected.guest_email})`],
-                ['Phone', selected.guest_phone],
-                ['Check-in', formatDate(selected.check_in)],
-                ['Check-out', formatDate(selected.check_out)],
-                ['Nights', selected.nights],
+                ['Guest', selected.customer_name],
+                ['Check-in', formatDate(selected.checkin_date)],
+                ['Check-out', formatDate(selected.checkout_date)],
                 ['Guests', selected.guests],
-                ['Rooms', selected.rooms_count],
-                ['Base Amount', formatPrice(selected.base_amount)],
-                ['Discount', selected.discount_amount > 0 ? `-${formatPrice(selected.discount_amount)}` : '—'],
-                ['Tax', formatPrice(selected.tax_amount)],
-                ['Total', formatPrice(selected.total_amount)],
-                ['Coupon', selected.coupon_code || '—'],
-                ['Status', <span className={`badge ${STATUS_BADGE[selected.status]}`}>{selected.status}</span>],
-                ['Special Requests', selected.special_requests || '—'],
+                ['Amount', formatPrice(selected.amount)],
+                ['Status', <span className={`badge ${STATUS_BADGE[selected.status] || 'badge-neutral'}`}>{selected.status}</span>],
                 ['Booked On', formatDate(selected.created_at)],
               ].map(([l, v]) => (
                 <div key={l} className="detail-row"><div className="detail-label">{l}</div><div className="detail-value">{v}</div></div>
               ))}
             </div>
             <div className="modal-footer">
-              {selected.status !== 'cancelled' && (
-                <button className="btn btn-danger btn-sm" onClick={() => setConfirmCancel(selected)}>Cancel Booking</button>
-              )}
-              {selected.status === 'confirmed' && (
-                <button className="btn btn-success btn-sm" onClick={() => setConfirmComplete(selected)}>Mark Completed</button>
-              )}
+              {(ACTIONS[selected.status] || []).map(({ label, icon: Icon, next, cls }) => (
+                <button key={next} className={`btn ${cls} btn-sm`} disabled={acting}
+                  onClick={() => next === 'cancelled' ? setConfirmCancel(selected) : updateStatus(selected, next)}>
+                  {acting ? <span className="spinner" /> : <><Icon size={13} /> {label}</>}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -117,21 +135,12 @@ export default function Bookings() {
       <ConfirmModal
         open={!!confirmCancel}
         onClose={() => setConfirmCancel(null)}
-        onConfirm={() => updateStatus(confirmCancel, 'cancelled')}
+        onConfirm={() => cancelBooking(confirmCancel)}
+        loading={acting}
         variant="danger"
         title="Cancel Booking?"
-        message={`Booking ${confirmCancel?.booking_reference} will be cancelled. This cannot be undone.`}
+        message={`Booking #${confirmCancel?.id} will be cancelled. This cannot be undone.`}
         confirmLabel="Yes, Cancel"
-      />
-
-      <ConfirmModal
-        open={!!confirmComplete}
-        onClose={() => setConfirmComplete(null)}
-        onConfirm={() => updateStatus(confirmComplete, 'completed')}
-        variant="info"
-        title="Mark as Completed?"
-        message={`Booking ${confirmComplete?.booking_reference} will be marked as completed.`}
-        confirmLabel="Mark Completed"
       />
     </div>
   )

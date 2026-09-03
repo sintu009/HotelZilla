@@ -1,85 +1,53 @@
-import { useState } from 'react'
-import { REFUNDS } from '../lib/mockData'
-import { formatPrice, formatDateTime } from '../lib/format'
-import { Check, X } from 'lucide-react'
-import { useToast } from '../components/Toast'
-import ConfirmModal from '../components/ConfirmModal'
+import { paymentsApi } from '../lib/api'
+import { useFetch } from '../lib/useFetch'
+import { formatPrice, formatDate } from '../lib/format'
 
 export default function Refunds() {
-  const toast = useToast()
-  const [rows, setRows] = useState(REFUNDS)
-  const [confirmProcess, setConfirmProcess] = useState(null)
-  const [confirmReject, setConfirmReject] = useState(null)
+  const { data, loading, error } = useFetch(() => paymentsApi.list(1, 100))
+  const allRows = data?.data ?? []
+  const rows = allRows.filter(p => p.status === 'refunded')
 
-  const updateStatus = (r, status) => {
-    setRows(prev => prev.map(x => x.id === r.id ? { ...x, status, processed_at: status === 'processed' ? new Date().toISOString() : x.processed_at } : x))
-    if (status === 'processed') toast.success('Refund Processed', `${formatPrice(r.amount)} refund for ${r.booking_reference} has been issued.`)
-    if (status === 'rejected') toast.error('Refund Rejected', `Refund request for ${r.booking_reference} has been rejected.`)
-  }
-
-  const totalProcessed = rows.filter(r => r.status === 'processed').reduce((s, r) => s + r.amount, 0)
-  const totalPending = rows.filter(r => r.status === 'pending').reduce((s, r) => s + r.amount, 0)
+  const total   = rows.reduce((s, p) => s + parseFloat(p.amount || 0), 0)
+  const pending = allRows.filter(p => p.status === 'pending').reduce((s, p) => s + parseFloat(p.amount || 0), 0)
 
   return (
     <div>
-      <div className="page-header"><div><div className="page-title">Refunds</div><div className="page-subtitle">{rows.length} refund requests</div></div></div>
+      <div className="page-header">
+        <div><div className="page-title">Refunds</div><div className="page-subtitle">{rows.length} refund records</div></div>
+      </div>
 
       <div className="stat-grid">
-        <div className="stat-card"><div className="stat-value">{formatPrice(totalProcessed)}</div><div className="stat-label">Processed</div></div>
-        <div className="stat-card"><div className="stat-value">{formatPrice(totalPending)}</div><div className="stat-label">Pending</div></div>
-        <div className="stat-card"><div className="stat-value">{rows.filter(r => r.status === 'rejected').length}</div><div className="stat-label">Rejected</div></div>
+        <div className="stat-card"><div className="stat-value">{formatPrice(total)}</div><div className="stat-label">Total Refunded</div></div>
+        <div className="stat-card"><div className="stat-value">{rows.length}</div><div className="stat-label">Refund Count</div></div>
+        <div className="stat-card"><div className="stat-value">{formatPrice(pending)}</div><div className="stat-label">Pending Payments</div></div>
       </div>
 
       <div className="card">
         <div className="table-wrapper">
           <table className="table">
-            <thead><tr><th>Booking Ref</th><th>Hotel</th><th>Customer</th><th>Amount</th><th>Reason</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <thead><tr><th>#ID</th><th>Booking</th><th>Customer</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead>
             <tbody>
-              {rows.length === 0
-                ? <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No refunds yet</td></tr>
-                : rows.map(r => (
-                  <tr key={r.id}>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{r.booking_reference}</td>
-                    <td>{r.hotel_name}</td>
-                    <td>{r.customer_email}</td>
-                    <td style={{ fontWeight: 600 }}>{formatPrice(r.amount)}</td>
-                    <td style={{ maxWidth: 200, fontSize: '0.8rem' }}>{r.reason}</td>
-                    <td><span className={`badge ${r.status === 'processed' ? 'badge-success' : r.status === 'rejected' ? 'badge-error' : 'badge-warning'}`}>{r.status}</span></td>
-                    <td>{formatDateTime(r.created_at)}</td>
-                    <td>
-                      {r.status === 'pending' && (
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn btn-success btn-sm" onClick={() => setConfirmProcess(r)}><Check size={12} /> Process</button>
-                          <button className="btn btn-danger btn-sm" onClick={() => setConfirmReject(r)}><X size={12} /> Reject</button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+              {loading
+                ? <tr><td colSpan={6} style={{ textAlign: 'center' }}><span className="spinner" /></td></tr>
+                : error
+                  ? <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--error)' }}>{error}</td></tr>
+                  : rows.length === 0
+                    ? <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No refunds yet</td></tr>
+                    : rows.map(p => (
+                      <tr key={p.id}>
+                        <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>#{p.id}</td>
+                        <td>#{p.booking_ref || p.booking_id}</td>
+                        <td>{p.customer_name}</td>
+                        <td style={{ fontWeight: 600 }}>{formatPrice(p.amount)}</td>
+                        <td><span className="badge badge-neutral">{p.method || '—'}</span></td>
+                        <td>{formatDate(p.created_at)}</td>
+                      </tr>
+                    ))
+              }
             </tbody>
           </table>
         </div>
       </div>
-
-      <ConfirmModal
-        open={!!confirmProcess}
-        onClose={() => setConfirmProcess(null)}
-        onConfirm={() => updateStatus(confirmProcess, 'processed')}
-        variant="info"
-        title="Process Refund?"
-        message={`${formatPrice(confirmProcess?.amount)} will be refunded to the customer for booking ${confirmProcess?.booking_reference}.`}
-        confirmLabel="Process Refund"
-      />
-
-      <ConfirmModal
-        open={!!confirmReject}
-        onClose={() => setConfirmReject(null)}
-        onConfirm={() => updateStatus(confirmReject, 'rejected')}
-        variant="danger"
-        title="Reject Refund?"
-        message={`The refund request for booking ${confirmReject?.booking_reference} will be rejected.`}
-        confirmLabel="Reject"
-      />
     </div>
   )
 }

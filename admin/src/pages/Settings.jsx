@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { SETTINGS } from '../lib/mockData'
 import { Save } from 'lucide-react'
 
+const DEFAULT_SETTINGS = { platform_name: 'HotelZilla', support_email: 'support@hotelzilla.com', contact_phone: '+91 98765 43210', address: 'Mumbai, India', currency: 'INR', currency_symbol: '₹', default_commission_rate: 10, tax_rate: 18 }
+
 export default function Settings() {
-  const [data, setData] = useState({ ...SETTINGS })
+  const [data, setData] = useState({ ...DEFAULT_SETTINGS })
   const [saved, setSaved] = useState(false)
 
   const upd = (k, v) => setData(p => ({ ...p, [k]: v }))

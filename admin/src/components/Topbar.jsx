@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Bell, Search, Maximize2, Minimize2, ChevronRight, LogOut, User, Settings, X } from 'lucide-react'
+import useAuthStore from '../lib/useAuthStore'
 
 const PAGE_TITLES = {
   '/dashboard': ['Dashboard'],
@@ -48,6 +49,7 @@ function useOutsideClick(ref, cb) {
 export default function Topbar() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { logout, user } = useAuthStore()
   const crumbs = PAGE_TITLES[pathname] || ['Dashboard']
 
   const [search, setSearch] = useState('')
@@ -171,17 +173,17 @@ export default function Topbar() {
         {/* Profile */}
         <div className="topbar-dropdown-wrap" ref={profileRef}>
           <button className="topbar-profile-btn" onClick={() => { setProfileOpen(o => !o); setNotifOpen(false) }}>
-            <div className="topbar-avatar">A</div>
+            <div className="topbar-avatar">{user?.name?.[0]?.toUpperCase() || 'A'}</div>
             <div className="topbar-profile-info">
-              <span className="topbar-profile-name">Admin</span>
+              <span className="topbar-profile-name">{user?.name || 'Admin'}</span>
               <span className="topbar-profile-role">Super Admin</span>
             </div>
           </button>
           {profileOpen && (
             <div className="topbar-dropdown profile-dropdown">
               <div className="dropdown-header">
-                <div className="profile-dd-name">Admin User</div>
-                <div className="profile-dd-email">admin@astitrip.com</div>
+                <div className="profile-dd-name">{user?.name || 'Admin'}</div>
+                <div className="profile-dd-email">{user?.email || ''}</div>
               </div>
               <div className="dropdown-menu">
                 <button className="dropdown-item" onClick={() => { navigate('/settings'); setProfileOpen(false) }}>
@@ -191,7 +193,7 @@ export default function Topbar() {
                   <Settings size={15} /> Settings
                 </button>
                 <div className="dropdown-sep" />
-                <button className="dropdown-item dropdown-item-danger">
+                <button className="dropdown-item dropdown-item-danger" onClick={() => { logout(); navigate('/login') }}>
                   <LogOut size={15} /> Sign Out
                 </button>
               </div>

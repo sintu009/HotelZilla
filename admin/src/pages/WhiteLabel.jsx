@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { WHITE_LABELS, ADMIN_THEMES } from '../lib/mockData'
 import { formatDate } from '../lib/format'
-import { Search, Eye, Palette, Check, X, Globe, Building2 } from 'lucide-react'
+import { Search, Eye, Palette, Check, Globe, Building2 } from 'lucide-react'
+
+const ADMIN_THEMES = {
+  emerald: { id: 'emerald', name: 'Emerald', primary: '#059669', gradient: 'linear-gradient(135deg,#059669,#047857)' },
+  blue:    { id: 'blue',    name: 'Ocean',   primary: '#0ea5e9', gradient: 'linear-gradient(135deg,#0ea5e9,#0284c7)' },
+  purple:  { id: 'purple',  name: 'Violet',  primary: '#8b5cf6', gradient: 'linear-gradient(135deg,#8b5cf6,#7c3aed)' },
+}
 
 export default function WhiteLabel() {
-  const [rows, setRows] = useState(WHITE_LABELS)
+  const [rows, setRows]     = useState([])
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
 

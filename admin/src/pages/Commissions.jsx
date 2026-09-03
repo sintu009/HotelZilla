@@ -1,65 +1,58 @@
-import { useState } from 'react'
-import { COMMISSIONS } from '../lib/mockData'
+import { paymentsApi } from '../lib/api'
+import { useFetch } from '../lib/useFetch'
 import { formatPrice, formatDate } from '../lib/format'
 
 export default function Commissions() {
-  const [rows, setRows] = useState(COMMISSIONS)
-  const [statusFilter, setStatusFilter] = useState('')
+  const { data, loading, error } = useFetch(() => paymentsApi.list(1, 200))
+  const allRows = data?.data ?? []
 
-  const filtered = statusFilter ? rows.filter(c => c.payout_status === statusFilter) : rows
+  // Commission = 10% of each completed payment
+  const rows = allRows
+    .filter(p => p.status === 'completed' || p.status === 'refunded')
+    .map(p => ({
+      ...p,
+      commission: parseFloat((parseFloat(p.amount || 0) * 0.1).toFixed(2)),
+    }))
 
-  const updatePayout = (c, payout_status) =>
-    setRows(prev => prev.map(x => x.id === c.id ? { ...x, payout_status, payout_date: payout_status === 'paid' ? new Date().toISOString() : x.payout_date } : x))
-
-  const total = rows.reduce((s, c) => s + c.commission_amount, 0)
-  const paid = rows.filter(c => c.payout_status === 'paid').reduce((s, c) => s + c.commission_amount, 0)
-  const pending = rows.filter(c => c.payout_status === 'pending').reduce((s, c) => s + c.commission_amount, 0)
+  const totalCommission = rows.reduce((s, r) => s + r.commission, 0)
+  const completedCommission = rows.filter(r => r.status === 'completed').reduce((s, r) => s + r.commission, 0)
+  const refundedCommission  = rows.filter(r => r.status === 'refunded').reduce((s, r) => s + r.commission, 0)
 
   return (
     <div>
-      <div className="page-header"><div><div className="page-title">Commissions</div><div className="page-subtitle">Platform commission tracking</div></div></div>
-
-      <div className="stat-grid">
-        <div className="stat-card"><div className="stat-value">{formatPrice(total)}</div><div className="stat-label">Total Commission</div></div>
-        <div className="stat-card"><div className="stat-value">{formatPrice(paid)}</div><div className="stat-label">Paid Out</div></div>
-        <div className="stat-card"><div className="stat-value">{formatPrice(pending)}</div><div className="stat-label">Pending Payout</div></div>
+      <div className="page-header">
+        <div><div className="page-title">Commissions</div><div className="page-subtitle">Platform commission tracking (10% per booking)</div></div>
       </div>
 
-      <div className="filter-bar">
-        <select className="input" style={{ width: 160 }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-          <option value="">All</option>
-          <option value="pending">Pending</option>
-          <option value="paid">Paid</option>
-          <option value="on_hold">On Hold</option>
-        </select>
+      <div className="stat-grid">
+        <div className="stat-card"><div className="stat-value">{formatPrice(totalCommission)}</div><div className="stat-label">Total Commission</div></div>
+        <div className="stat-card"><div className="stat-value">{formatPrice(completedCommission)}</div><div className="stat-label">From Completed</div></div>
+        <div className="stat-card"><div className="stat-value">{formatPrice(refundedCommission)}</div><div className="stat-label">From Refunded</div></div>
       </div>
 
       <div className="card">
         <div className="table-wrapper">
           <table className="table">
-            <thead><tr><th>Booking Ref</th><th>Hotel</th><th>Booking Amount</th><th>Rate</th><th>Commission</th><th>Payout Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Payment #</th><th>Booking</th><th>Customer</th><th>Booking Amount</th><th>Commission (10%)</th><th>Status</th><th>Date</th></tr></thead>
             <tbody>
-              {filtered.length === 0
-                ? <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No commissions yet</td></tr>
-                : filtered.map(c => (
-                  <tr key={c.id}>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{c.booking_reference}</td>
-                    <td style={{ fontWeight: 600 }}>{c.hotel_name}</td>
-                    <td>{formatPrice(c.booking_amount)}</td>
-                    <td>{c.commission_rate}%</td>
-                    <td style={{ fontWeight: 700 }}>{formatPrice(c.commission_amount)}</td>
-                    <td><span className={`badge ${c.payout_status === 'paid' ? 'badge-success' : c.payout_status === 'on_hold' ? 'badge-warning' : 'badge-neutral'}`}>{c.payout_status}</span></td>
-                    <td>{formatDate(c.created_at)}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        {c.payout_status === 'pending' && <>
-                          <button className="btn btn-success btn-sm" onClick={() => updatePayout(c, 'paid')}>Mark Paid</button>
-                          <button className="btn btn-secondary btn-sm" onClick={() => updatePayout(c, 'on_hold')}>Hold</button>
-                        </>}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+              {loading
+                ? <tr><td colSpan={7} style={{ textAlign: 'center' }}><span className="spinner" /></td></tr>
+                : error
+                  ? <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--error)' }}>{error}</td></tr>
+                  : rows.length === 0
+                    ? <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No commission data yet</td></tr>
+                    : rows.map(r => (
+                      <tr key={r.id}>
+                        <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>#{r.id}</td>
+                        <td>#{r.booking_ref || r.booking_id}</td>
+                        <td>{r.customer_name}</td>
+                        <td>{formatPrice(r.amount)}</td>
+                        <td style={{ fontWeight: 700, color: 'var(--accent)' }}>{formatPrice(r.commission)}</td>
+                        <td><span className={`badge ${r.status === 'completed' ? 'badge-success' : 'badge-info'}`}>{r.status}</span></td>
+                        <td>{formatDate(r.created_at)}</td>
+                      </tr>
+                    ))
+              }
             </tbody>
           </table>
         </div>

@@ -3,30 +3,29 @@ import { PARTNER } from '../lib/mockData'
 import { WHITE_LABEL, applyWhiteLabel } from '../lib/whiteLabel'
 import { THEMES } from '../lib/themes'
 import { Save, Palette, Building2, Globe } from 'lucide-react'
-import Toast from '../components/Toast'
+import { useToast } from '../components/Toast'
 
 export default function Settings() {
+  const toast = useToast()
   const [profile, setProfile] = useState({ ...PARTNER })
   const [branding, setBranding] = useState({ ...WHITE_LABEL })
-  const [toast, setToast] = useState(null)
 
   const updProfile = (k, v) => setProfile(p => ({ ...p, [k]: v }))
   const updBranding = (k, v) => setBranding(p => ({ ...p, [k]: v }))
 
   const saveProfile = (e) => {
     e.preventDefault()
-    setToast({ message: 'Profile updated!', type: 'success' })
+    toast.success('Profile Updated', 'Your profile information has been saved.')
   }
 
   const saveBranding = (e) => {
     e.preventDefault()
     applyWhiteLabel(branding)
-    setToast({ message: 'Branding applied! Theme changed live.', type: 'success' })
+    toast.success('Branding Applied', 'Theme and branding changes are now live.')
   }
 
   return (
     <div>
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <div className="page-header">
         <div><div className="page-title">Settings</div><div className="page-subtitle">Manage your profile and portal branding</div></div>

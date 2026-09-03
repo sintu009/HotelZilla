@@ -2,15 +2,19 @@ import { useState } from 'react'
 import { OFFERS } from '../lib/mockData'
 import { formatDate } from '../lib/format'
 import { Plus, CreditCard as Edit2, Trash2, X } from 'lucide-react'
+import { useToast } from '../components/Toast'
+import ConfirmModal from '../components/ConfirmModal'
 
 let nextId = 100
 const blank = () => ({ title: '', description: '', discount_type: 'percentage', discount_value: 10, code: '', image_url: '', start_date: new Date().toISOString().split('T')[0], end_date: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0], is_active: true })
 
 export default function Offers() {
+  const toast = useToast()
   const [rows, setRows] = useState(OFFERS)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(blank())
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const upd = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
@@ -19,13 +23,24 @@ export default function Offers() {
 
   const save = (e) => {
     e.preventDefault()
-    if (editing) setRows(prev => prev.map(r => r.id === editing.id ? { ...form, id: r.id, created_at: r.created_at } : r))
-    else setRows(prev => [{ ...form, id: `of${++nextId}`, created_at: new Date().toISOString() }, ...prev])
+    if (editing) {
+      setRows(prev => prev.map(r => r.id === editing.id ? { ...form, id: r.id, created_at: r.created_at } : r))
+      toast.success('Offer Updated', `${form.title} has been updated.`)
+    } else {
+      setRows(prev => [{ ...form, id: `of${++nextId}`, created_at: new Date().toISOString() }, ...prev])
+      toast.success('Offer Created', `${form.title} is now live.`)
+    }
     setShowForm(false)
   }
 
-  const toggleActive = (o) => setRows(prev => prev.map(r => r.id === o.id ? { ...r, is_active: !r.is_active } : r))
-  const remove = (o) => { if (!confirm('Delete this offer?')) return; setRows(prev => prev.filter(r => r.id !== o.id)) }
+  const toggleActive = (o) => {
+    setRows(prev => prev.map(r => r.id === o.id ? { ...r, is_active: !r.is_active } : r))
+    toast.info(o.is_active ? 'Offer Deactivated' : 'Offer Activated', `${o.title} has been ${o.is_active ? 'deactivated' : 'activated'}.`)
+  }
+  const remove = (o) => {
+    setRows(prev => prev.filter(r => r.id !== o.id))
+    toast.error('Offer Deleted', `${o.title} has been permanently removed.`)
+  }
 
   return (
     <div>
@@ -52,7 +67,7 @@ export default function Offers() {
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => openEdit(o)}><Edit2 size={14} /></button>
                         <button className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => toggleActive(o)}>{o.is_active ? 'Deactivate' : 'Activate'}</button>
-                        <button className="btn btn-danger btn-sm" onClick={() => remove(o)}><Trash2 size={14} /></button>
+                        <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(o)}><Trash2 size={14} /></button>
                       </div>
                     </td>
                   </tr>
@@ -90,6 +105,16 @@ export default function Offers() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => remove(confirmDelete)}
+        variant="danger"
+        title="Delete Offer?"
+        message={`"${confirmDelete?.title}" will be permanently removed.`}
+        confirmLabel="Delete"
+      />
     </div>
   )
 }

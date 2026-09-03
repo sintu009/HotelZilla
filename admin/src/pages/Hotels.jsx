@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { HOTELS } from '../lib/mockData'
 import { formatPrice, formatDate } from '../lib/format'
 import { Search, Eye, Check, X, Plus } from 'lucide-react'
@@ -48,16 +48,37 @@ export default function Hotels() {
     toast.success('Hotel Added', `${form.name} has been added successfully.`)
   }
 
-  const title = status ? `${status.charAt(0).toUpperCase() + status.slice(1)} Hotels` : 'All Hotels'
+  const navigate = useNavigate()
+  const tabs = [
+    { label: 'All Hotels', value: undefined, path: '/hotels' },
+    { label: 'Pending',    value: 'pending',  path: '/hotels/pending' },
+    { label: 'Approved',   value: 'approved', path: '/hotels/approved' },
+    { label: 'Rejected',   value: 'rejected', path: '/hotels/rejected' },
+  ]
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">{title}</div>
+          <div className="page-title">Hotels</div>
           <div className="page-subtitle">{filtered.length} hotels</div>
         </div>
         <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}><Plus size={14} /> Add Hotel</button>
+      </div>
+
+      <div className="hotel-tabs">
+        {tabs.map(t => (
+          <button
+            key={t.path}
+            className={`hotel-tab${status === t.value ? ' active' : ''}`}
+            onClick={() => navigate(t.path)}
+          >
+            {t.label}
+            <span className="hotel-tab-count">
+              {rows.filter(h => t.value ? h.status === t.value : true).length}
+            </span>
+          </button>
+        ))}
       </div>
 
       <div className="filter-bar">

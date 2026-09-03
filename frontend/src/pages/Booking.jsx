@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { formatPrice, formatDate } from '../lib/format'
 import { Check, CreditCard, Smartphone, Building2, Wallet } from 'lucide-react'
+import { useToast } from '../components/Toast'
 
 export default function Booking() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, profile } = useAuth()
+  const toast = useToast()
   const b = location.state || {}
 
   const [guestName, setGuestName] = useState(profile?.full_name || '')
@@ -28,13 +30,19 @@ export default function Booking() {
   }
 
   const handleConfirm = () => {
-    if (!guestName || !guestEmail || !guestPhone) { setError('Please fill in all guest details'); return }
+    if (!guestName || !guestEmail || !guestPhone) {
+      setError('Please fill in all guest details')
+      toast.error('Missing Details', 'Please fill in all guest details before proceeding.')
+      return
+    }
     if (!user) { navigate('/login'); return }
     setLoading(true)
     setError('')
     setTimeout(() => {
-      setSuccess({ booking_reference: 'BK' + Date.now().toString().slice(-8) })
+      const ref = 'BK' + Date.now().toString().slice(-8)
+      setSuccess({ booking_reference: ref })
       setLoading(false)
+      toast.success('Booking Confirmed!', `Your booking reference is ${ref}.`)
     }, 800)
   }
 

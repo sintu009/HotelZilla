@@ -68,7 +68,7 @@ export default function Reports() {
   if (type === 'revenue') return (
     <div>
       <div className="page-header"><div><div className="page-title">Revenue Report</div><div className="page-subtitle">Revenue and commission analytics</div></div></div>
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 24 }}>
+      <div className="stat-grid">
         <div className="stat-card"><div className="stat-value">{formatPrice(stats.totalRevenue)}</div><div className="stat-label">Total Revenue</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(stats.totalCommission)}</div><div className="stat-label">Total Commission</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(stats.pendingCommission)}</div><div className="stat-label">Pending Payout</div></div>
@@ -90,7 +90,7 @@ export default function Reports() {
   if (type === 'bookings') return (
     <div>
       <div className="page-header"><div><div className="page-title">Bookings Report</div><div className="page-subtitle">Booking trends and status</div></div></div>
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 24 }}>
+      <div className="stat-grid-4">
         <div className="stat-card"><div className="stat-value">{stats.totalBookings}</div><div className="stat-label">Total Bookings</div></div>
         <div className="stat-card"><div className="stat-value">{stats.confirmedBookings}</div><div className="stat-label">Confirmed</div></div>
         <div className="stat-card"><div className="stat-value">{stats.completedBookings}</div><div className="stat-label">Completed</div></div>
@@ -126,7 +126,7 @@ export default function Reports() {
   if (type === 'hotels') return (
     <div>
       <div className="page-header"><div><div className="page-title">Hotels Report</div><div className="page-subtitle">Hotel distribution and performance</div></div></div>
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 24 }}>
+      <div className="stat-grid">
         <div className="stat-card"><div className="stat-value">{stats.totalHotels}</div><div className="stat-label">Total Hotels</div></div>
         <div className="stat-card"><div className="stat-value">{stats.approvedHotels}</div><div className="stat-label">Approved</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(Math.round(HOTELS.reduce((s, h) => s + h.price_from, 0) / HOTELS.length))}</div><div className="stat-label">Avg Price/Night</div></div>
@@ -161,7 +161,7 @@ export default function Reports() {
   if (type === 'customers') return (
     <div>
       <div className="page-header"><div><div className="page-title">Customers Report</div><div className="page-subtitle">User growth and spending</div></div></div>
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 24 }}>
+      <div className="stat-grid-4">
         <div className="stat-card"><div className="stat-value">{stats.totalUsers}</div><div className="stat-label">Total Users</div></div>
         <div className="stat-card"><div className="stat-value">{stats.customers}</div><div className="stat-label">Customers</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(totalSpend)}</div><div className="stat-label">Total Spend</div></div>

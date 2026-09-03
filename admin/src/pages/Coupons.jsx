@@ -2,15 +2,19 @@ import { useState } from 'react'
 import { COUPONS } from '../lib/mockData'
 import { formatDate } from '../lib/format'
 import { Plus, CreditCard as Edit2, Trash2, X } from 'lucide-react'
+import { useToast } from '../components/Toast'
+import ConfirmModal from '../components/ConfirmModal'
 
 let nextId = 100
 const blank = () => ({ code: '', description: '', discount_type: 'percentage', discount_value: 10, min_order_amount: 0, max_discount_amount: 0, usage_limit: 100, used_count: 0, valid_from: new Date().toISOString().split('T')[0], valid_until: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0], is_active: true })
 
 export default function Coupons() {
+  const toast = useToast()
   const [rows, setRows] = useState(COUPONS)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(blank())
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const upd = (k, v) => setForm(p => ({ ...p, [k]: v }))
   const openAdd = () => { setEditing(null); setForm(blank()); setShowForm(true) }
@@ -18,12 +22,20 @@ export default function Coupons() {
 
   const save = (e) => {
     e.preventDefault()
-    if (editing) setRows(prev => prev.map(r => r.id === editing.id ? { ...form, id: r.id, used_count: r.used_count, created_at: r.created_at } : r))
-    else setRows(prev => [{ ...form, code: form.code.toUpperCase(), id: `cp${++nextId}`, created_at: new Date().toISOString() }, ...prev])
+    if (editing) {
+      setRows(prev => prev.map(r => r.id === editing.id ? { ...form, id: r.id, used_count: r.used_count, created_at: r.created_at } : r))
+      toast.success('Coupon Updated', `${form.code} has been updated.`)
+    } else {
+      setRows(prev => [{ ...form, code: form.code.toUpperCase(), id: `cp${++nextId}`, created_at: new Date().toISOString() }, ...prev])
+      toast.success('Coupon Created', `${form.code.toUpperCase()} is now active.`)
+    }
     setShowForm(false)
   }
 
-  const remove = (c) => { if (!confirm('Delete this coupon?')) return; setRows(prev => prev.filter(r => r.id !== c.id)) }
+  const remove = (c) => {
+    setRows(prev => prev.filter(r => r.id !== c.id))
+    toast.error('Coupon Deleted', `${c.code} has been permanently removed.`)
+  }
 
   return (
     <div>
@@ -51,7 +63,7 @@ export default function Coupons() {
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)}><Edit2 size={14} /></button>
-                        <button className="btn btn-danger btn-sm" onClick={() => remove(c)}><Trash2 size={14} /></button>
+                        <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(c)}><Trash2 size={14} /></button>
                       </div>
                     </td>
                   </tr>
@@ -92,6 +104,16 @@ export default function Coupons() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => remove(confirmDelete)}
+        variant="danger"
+        title="Delete Coupon?"
+        message={`Coupon "${confirmDelete?.code}" will be permanently removed.`}
+        confirmLabel="Delete"
+      />
     </div>
   )
 }

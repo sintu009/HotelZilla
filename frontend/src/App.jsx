@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './lib/auth'
+import { ToastProvider } from './components/Toast'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Landing from './pages/Landing'
@@ -11,11 +12,13 @@ import SignUp from './pages/SignUp'
 import RegisterHotel from './pages/RegisterHotel'
 import Offers from './pages/Offers'
 import MyBookings from './pages/MyBookings'
+import ChatBot from './components/ChatBot'
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ToastProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -34,9 +37,11 @@ function App() {
                 </Routes>
               </main>
               <Footer />
+              <ChatBot />
             </>
           } />
         </Routes>
+        </ToastProvider>
       </BrowserRouter>
     </AuthProvider>
   )

@@ -34,7 +34,7 @@ export default function WhiteLabel() {
         </div>
       </div>
 
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 20 }}>
+      <div className="stat-grid">
         <div className="stat-card"><div className="stat-value">{rows.length}</div><div className="stat-label">Total Partners</div></div>
         <div className="stat-card"><div className="stat-value" style={{ color: 'var(--success)' }}>{activeCount}</div><div className="stat-label">Portal Access Enabled</div></div>
         <div className="stat-card"><div className="stat-value" style={{ color: 'var(--warning)' }}>{landingCount}</div><div className="stat-label">Landing Pages Active</div></div>

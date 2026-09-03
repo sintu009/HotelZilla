@@ -80,9 +80,13 @@ export default function Topbar() {
   const markAllRead = () => setNotifications(n => n.map(x => ({ ...x, unread: false })))
   const dismiss = (id) => setNotifications(n => n.filter(x => x.id !== id))
 
-  const now = new Date()
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(t)
+  }, [])
   const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
-  const dateStr = now.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+  const dateStr = now.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })
 
   return (
     <div className="topbar">
@@ -96,11 +100,16 @@ export default function Topbar() {
             </span>
           ))}
         </nav>
-        <div className="topbar-datetime">{dateStr} &nbsp;·&nbsp; {timeStr}</div>
       </div>
 
       {/* Right — Actions */}
       <div className="topbar-actions">
+
+        {/* Datetime pill */}
+        <div className="topbar-datetime">
+          <span className="topbar-date">{dateStr}</span>
+          <span className="topbar-time">{timeStr}</span>
+        </div>
 
         {/* Search */}
         <div className={`topbar-search${searchOpen ? ' open' : ''}`} ref={searchRef}>

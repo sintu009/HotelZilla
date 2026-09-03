@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, Building2, CalendarClock, CreditCard, RotateCcw, Star, Tag, Ticket, Percent, ChartBar as BarChart2, FileText, Settings, ChevronDown, Hop as Home, Image, MapPin, DollarSign, CircleUser as UserCircle, UserCheck, CircleCheck as CheckCircle, Clock, Circle as XCircle, Hotel, Palette } from 'lucide-react'
+import { LayoutDashboard, Users, Building2, CalendarClock, CreditCard, RotateCcw, Star, Tag, Ticket, Percent, ChartBar as BarChart2, FileText, Settings, ChevronDown, Hop as Home, Image, MapPin, DollarSign, CircleUser as UserCircle, UserCheck, Palette } from 'lucide-react'
 import Logo from './Logo'
 
 const NAV = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { section: 'Management' },
   {
     key: 'users', icon: Users, label: 'Users',
     children: [
@@ -12,22 +13,17 @@ const NAV = [
       { to: '/users/hotel-owners', icon: UserCheck,  label: 'Hotel Owners' },
     ],
   },
-  {
-    key: 'hotels', icon: Building2, label: 'Hotels',
-    children: [
-      { to: '/hotels',          icon: Hotel,       label: 'All Hotels' },
-      { to: '/hotels/pending',  icon: Clock,       label: 'Pending' },
-      { to: '/hotels/approved', icon: CheckCircle, label: 'Approved' },
-      { to: '/hotels/rejected', icon: XCircle,     label: 'Rejected' },
-    ],
-  },
+  { to: '/hotels', icon: Building2, label: 'Hotels' },
   { to: '/bookings',    icon: CalendarClock, label: 'Bookings' },
   { to: '/reviews',     icon: Star,          label: 'Reviews' },
+  { section: 'Finance' },
   { to: '/payments',    icon: CreditCard,    label: 'Payments' },
   { to: '/refunds',     icon: RotateCcw,     label: 'Refunds' },
   { to: '/commissions', icon: Percent,       label: 'Commissions' },
+  { section: 'Marketing' },
   { to: '/offers',      icon: Tag,           label: 'Offers' },
   { to: '/coupons',     icon: Ticket,        label: 'Coupons' },
+  { section: 'Analytics & Config' },
   {
     key: 'reports', icon: BarChart2, label: 'Reports',
     children: [
@@ -51,7 +47,7 @@ const NAV = [
 ]
 
 export default function Sidebar() {
-  const [open, setOpen] = useState({ users: true, hotels: false, reports: false, cms: false })
+  const [open, setOpen] = useState({ users: true, reports: false, cms: false })
   const toggle = (k) => setOpen(p => ({ ...p, [k]: !p[k] }))
 
   return (
@@ -65,7 +61,10 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="sidebar-nav">
-        {NAV.map((item) => {
+        {NAV.map((item, idx) => {
+          if (item.section) {
+            return <div key={idx} className="sidebar-section-label">{item.section}</div>
+          }
           if (item.children) {
             const isOpen = open[item.key]
             const Icon = item.icon
@@ -105,6 +104,7 @@ export default function Sidebar() {
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.to !== '/hotels'}
               className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
             >
               <span className="sidebar-item-icon"><Icon size={16} /></span>

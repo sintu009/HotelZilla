@@ -23,7 +23,7 @@ export default function Payments() {
         <div><div className="page-title">Payments</div><div className="page-subtitle">{filtered.length} payment records</div></div>
       </div>
 
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 20 }}>
+      <div className="stat-grid">
         <div className="stat-card"><div className="stat-value">{formatPrice(totalPaid)}</div><div className="stat-label">Total Paid</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(totalPending)}</div><div className="stat-label">Pending</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(totalRefunded)}</div><div className="stat-label">Refunded</div></div>

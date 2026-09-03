@@ -24,7 +24,7 @@ export default function Refunds() {
     <div>
       <div className="page-header"><div><div className="page-title">Refunds</div><div className="page-subtitle">{rows.length} refund requests</div></div></div>
 
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 20 }}>
+      <div className="stat-grid">
         <div className="stat-card"><div className="stat-value">{formatPrice(totalProcessed)}</div><div className="stat-label">Processed</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(totalPending)}</div><div className="stat-label">Pending</div></div>
         <div className="stat-card"><div className="stat-value">{rows.filter(r => r.status === 'rejected').length}</div><div className="stat-label">Rejected</div></div>

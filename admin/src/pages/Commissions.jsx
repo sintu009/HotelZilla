@@ -19,7 +19,7 @@ export default function Commissions() {
     <div>
       <div className="page-header"><div><div className="page-title">Commissions</div><div className="page-subtitle">Platform commission tracking</div></div></div>
 
-      <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 20 }}>
+      <div className="stat-grid">
         <div className="stat-card"><div className="stat-value">{formatPrice(total)}</div><div className="stat-label">Total Commission</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(paid)}</div><div className="stat-label">Paid Out</div></div>
         <div className="stat-card"><div className="stat-value">{formatPrice(pending)}</div><div className="stat-label">Pending Payout</div></div>

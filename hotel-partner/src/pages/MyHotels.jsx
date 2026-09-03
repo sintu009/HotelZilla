@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { HOTELS } from '../lib/mockData'
 import { formatPrice } from '../lib/format'
-import { Star, MapPin, BedDouble, Plus, Eye } from 'lucide-react'
+import { Star, MapPin, BedDouble, Plus } from 'lucide-react'
+import { useToast } from '../components/Toast'
 
 export default function MyHotels() {
+  const toast = useToast()
   const [showAdd, setShowAdd] = useState(false)
 
   return (
@@ -57,12 +59,15 @@ export default function MyHotels() {
         ))}
       </div>
 
-      {showAdd && <AddHotelModal onClose={() => setShowAdd(false)} />}
+      {showAdd && <AddHotelModal onClose={() => setShowAdd(false)} onSubmit={(name) => {
+        setShowAdd(false)
+        toast.info('Submitted for Approval', `${name} has been submitted and is pending admin review.`)
+      }} />}
     </div>
   )
 }
 
-function AddHotelModal({ onClose }) {
+function AddHotelModal({ onClose, onSubmit }) {
   const [form, setForm] = useState({ name: '', city: '', state: '', star_rating: 3, price_from: 2000, description: '', address: '', contact_phone: '', contact_email: '' })
   const upd = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
@@ -74,7 +79,7 @@ function AddHotelModal({ onClose }) {
           <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">
-          <form onSubmit={e => { e.preventDefault(); onClose() }}>
+          <form onSubmit={e => { e.preventDefault(); onSubmit(form.name) }}>
             <div className="form-group"><label className="label">Hotel Name *</label><input className="input" value={form.name} onChange={e => upd('name', e.target.value)} required /></div>
             <div className="form-grid">
               <div className="form-group"><label className="label">City *</label><input className="input" value={form.city} onChange={e => upd('city', e.target.value)} required /></div>

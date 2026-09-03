@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ToastProvider } from './components/Toast'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import PublicHeader from './components/PublicHeader'
@@ -69,7 +70,9 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <ToastProvider>
+        <AppRoutes />
+      </ToastProvider>
     </BrowserRouter>
   )
 }

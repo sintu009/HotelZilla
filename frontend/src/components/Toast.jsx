@@ -32,19 +32,19 @@ function ToastItem({ toast, onRemove }) {
 
   return (
     <div
-      className={`toast-item${visible ? ' in' : ''}${leaving ? ' out' : ''}`}
+      className={`fe-toast-item${visible ? ' in' : ''}${leaving ? ' out' : ''}`}
       style={{ background: c.bg, border: `1px solid ${c.border}` }}
       onMouseEnter={() => clearTimeout(timerRef.current)}
       onMouseLeave={() => { timerRef.current = setTimeout(dismiss, 1200) }}
     >
-      <div className="toast-bar" style={{ background: c.bar }} />
-      <div className="toast-icon" style={{ color: c.icon }}><Icon size={17} /></div>
-      <div className="toast-body">
-        {toast.title && <div className="toast-title" style={{ color: c.text }}>{toast.title}</div>}
-        {toast.message && <div className="toast-message">{toast.message}</div>}
+      <div className="fe-toast-bar" style={{ background: c.bar }} />
+      <div style={{ color: c.icon, flexShrink: 0, marginTop: 1 }}><Icon size={17} /></div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {toast.title && <div style={{ fontSize: '0.83rem', fontWeight: 700, color: c.text, lineHeight: 1.3 }}>{toast.title}</div>}
+        {toast.message && <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>{toast.message}</div>}
       </div>
-      <button className="toast-close" onClick={dismiss}><X size={14} /></button>
-      <div className="toast-progress" style={{ background: c.bar, animationDuration: `${DURATION}ms` }} />
+      <button className="fe-toast-close" onClick={dismiss}><X size={14} /></button>
+      <div className="fe-toast-progress" style={{ background: c.bar, animationDuration: `${DURATION}ms` }} />
     </div>
   )
 }
@@ -65,7 +65,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastCtx.Provider value={api}>
       {children}
-      <div className="toast-stack">
+      <div className="fe-toast-stack">
         {toasts.map(t => <ToastItem key={t.id} toast={t} onRemove={remove} />)}
       </div>
     </ToastCtx.Provider>

@@ -11,7 +11,19 @@ const useAuthStore = create((set, get) => ({
   user: load().user || null,
   profile: load().profile || null,
   token: load().token || null,
-  loading: false,
+  loading: true,
+
+  init: async () => {
+    const { token } = get()
+    if (!token) { set({ loading: false }); return }
+    try {
+      const user = await authApi.me()
+      set(s => ({ user: { ...s.user, ...user }, loading: false }))
+    } catch {
+      localStorage.removeItem(KEY)
+      set({ user: null, profile: null, token: null, loading: false })
+    }
+  },
 
   signIn: async (email, password) => {
     set({ loading: true })
@@ -44,7 +56,8 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  signOut: () => {
+  signOut: async () => {
+    try { await authApi.logout() } catch { /* ignore */ }
     localStorage.removeItem(KEY)
     set({ user: null, profile: null, token: null })
   },

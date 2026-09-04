@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../lib/useAuthStore'
+import hotelsApi from '../api/hotels'
 import { Hotel, Check, ArrowLeft } from 'lucide-react'
 
 const ALL_AMENITIES = ['Free WiFi', 'Swimming Pool', 'Spa', 'Restaurant', 'Bar', 'Gym', 'Parking', 'AC', 'Beach Access', 'Room Service', 'Concierge', 'Business Center', 'Airport Shuttle', 'Yoga', 'Heating']
@@ -10,7 +11,7 @@ export default function RegisterHotel() {
   const { user } = useAuthStore()
   const [form, setForm] = useState({
     name: '', description: '', address: '', city: '', state: '', country: 'India', pincode: '',
-    star_rating: 3, contact_phone: '', contawct_email: '', total_rooms: 0, price_from: 0, cover_image: '', images: '',
+    star_rating: 3, contact_phone: '', contact_email: '', total_rooms: 0, price_from: 0, cover_image: '', images: '',
   })
   const [amenities, setAmenities] = useState([])
   const [loading, setLoading] = useState(false)
@@ -20,12 +21,28 @@ export default function RegisterHotel() {
   const update = (k, v) => setForm(p => ({ ...p, [k]: v }))
   const toggleAmenity = (a) => setAmenities(prev => prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!user) { navigate('/login'); return }
+    if (!form.name.trim()) { setError('Hotel name is required'); return }
+    if (!form.city.trim()) { setError('City is required'); return }
     setError('')
     setLoading(true)
-    setTimeout(() => { setSuccess(true); setLoading(false) }, 800)
+    try {
+      await hotelsApi.register({
+        ...form,
+        amenities,
+        images: form.images ? form.images.split(',').map(s => s.trim()).filter(Boolean) : [],
+        star_rating: Number(form.star_rating),
+        total_rooms: Number(form.total_rooms),
+        price_from: Number(form.price_from),
+      })
+      setSuccess(true)
+    } catch (err) {
+      setError(err.message || 'Submission failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (success) {

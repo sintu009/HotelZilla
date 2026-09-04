@@ -59,6 +59,8 @@ export default function Bookings() {
   }
 
   const totalRevenue = filtered.filter(b => b.status !== 'cancelled').reduce((s, b) => s + Number(b.amount || 0), 0)
+  const sourceLabel = s => s === 'landing_page' ? 'Landing Page' : s === 'main_site' ? 'Main Site' : 'Direct'
+  const sourceBadge = s => s === 'landing_page' ? 'badge-info' : 'badge-neutral'
 
   return (
     <div>
@@ -94,7 +96,7 @@ export default function Bookings() {
         <div className="table-wrapper">
           <table className="table">
             <thead>
-              <tr><th>#ID</th><th>Hotel</th><th>Guest</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>#ID</th><th>Hotel</th><th>Guest</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Source</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {loading
@@ -109,6 +111,7 @@ export default function Bookings() {
                       <td>{formatDate(b.checkin_date)}</td>
                       <td>{formatDate(b.checkout_date)}</td>
                       <td style={{ fontWeight: 600 }}>{formatPrice(b.amount)}</td>
+                      <td><span className={`badge ${sourceBadge(b.source)}`}>{sourceLabel(b.source)}</span></td>
                       <td><span className={`badge ${STATUS_BADGE[b.status] || 'badge-neutral'}`}>{b.status}</span></td>
                       <td style={{ display: 'flex', gap: 4 }}>
                         {(ACTIONS[b.status] || []).map(({ label, icon: Icon, next, cls }) => (

@@ -5,12 +5,16 @@ exports.getHotelBookings = async (req, res, next) => {
   const offset = (page - 1) * limit;
   try {
     const { rows } = await db.query(
-      `SELECT b.*, u.name AS customer_name, u.phone AS customer_phone, h.name AS hotel_name, r.room_number
+      `SELECT b.*,
+              COALESCE(b.customer_name, u.name)  AS customer_name,
+              COALESCE(b.customer_phone, u.phone) AS customer_phone,
+              h.name AS hotel_name,
+              r.room_number
        FROM bookings b
-       JOIN hotels h ON b.hotel_id=h.id
-       JOIN users u ON b.user_id=u.id
-       JOIN rooms r ON b.room_id=r.id
-       WHERE h.owner_id=$1
+       JOIN hotels h ON b.hotel_id = h.id
+       LEFT JOIN users u ON b.user_id = u.id
+       LEFT JOIN rooms r ON b.room_id = r.id
+       WHERE h.owner_id = $1
        ORDER BY b.created_at DESC LIMIT $2 OFFSET $3`,
       [req.owner.id, limit, offset]
     );

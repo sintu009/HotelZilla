@@ -29,10 +29,17 @@ exports.createBooking = async (req, res, next) => {
       }
     }
 
+    // Fetch owner_id so booking appears in the hotel partner dashboard
+    const hotelRes = await db.query("SELECT owner_id FROM hotels WHERE id=$1", [hotel_id]);
+    const owner_id = hotelRes.rows[0]?.owner_id || null;
+    const booking_reference = 'BK' + Date.now().toString(36).toUpperCase();
+
     const { rows } = await db.query(
-      `INSERT INTO bookings (user_id, hotel_id, room_id, checkin_date, checkout_date, guests, amount, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,'confirmed') RETURNING *`,
-      [user_id, hotel_id, room_id, checkin_date, checkout_date, guests, amount]
+      `INSERT INTO bookings
+        (user_id, hotel_id, room_id, owner_id, checkin_date, checkout_date, guests, amount,
+         source, booking_reference, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'main_site',$9,'confirmed') RETURNING *`,
+      [user_id, hotel_id, room_id, owner_id, checkin_date, checkout_date, guests, amount, booking_reference]
     );
     res.status(201).json(rows[0]);
   } catch (err) { next(err); }

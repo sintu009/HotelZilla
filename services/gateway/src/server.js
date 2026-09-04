@@ -29,6 +29,7 @@ const proxy = (target) => legacyCreateProxyMiddleware({ target, changeOrigin: tr
 app.use("/api/admin",   proxy(ADMIN_SERVICE));
 app.use("/uploads",     proxy(ADMIN_SERVICE));
 app.use("/api/partner", proxy(HOTEL_SERVICE));
+app.use("/api/public",  proxy(HOTEL_SERVICE));
 app.use("/api",         proxy(USER_SERVICE));
 
 app.get("/health", (_, res) => res.json({ status: "ok", service: "gateway" }));

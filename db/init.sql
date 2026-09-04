@@ -46,6 +46,30 @@ ALTER TABLE hotels ADD COLUMN IF NOT EXISTS smoking_allowed   BOOLEAN DEFAULT FA
 ALTER TABLE hotels ADD COLUMN IF NOT EXISTS breakfast_included BOOLEAN DEFAULT FALSE;
 ALTER TABLE hotels ADD COLUMN IF NOT EXISTS is_open BOOLEAN DEFAULT TRUE;
 
+-- White-label / landing page columns
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS brand_name           VARCHAR(200);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS brand_tagline        VARCHAR(200);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS logo_text            VARCHAR(5);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS logo_url             TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS theme                VARCHAR(30) DEFAULT 'emerald';
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS cover_image          TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS landing_page_enabled BOOLEAN DEFAULT FALSE;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS contact_email        VARCHAR(150);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS contact_phone        VARCHAR(30);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS hero_heading         TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS hero_subheading      TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature1_title       VARCHAR(200);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature1_desc        TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature2_title       VARCHAR(200);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature2_desc        TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature3_title       VARCHAR(200);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature3_desc        TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature4_title       VARCHAR(200);
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS feature4_desc        TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS cta_heading          TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS cta_subheading       TEXT;
+ALTER TABLE hotels ADD COLUMN IF NOT EXISTS footer_tagline       TEXT;
+
 -- Rooms
 CREATE TABLE IF NOT EXISTS rooms (
   id               SERIAL PRIMARY KEY,
@@ -62,17 +86,31 @@ CREATE TABLE IF NOT EXISTS rooms (
 
 -- Bookings
 CREATE TABLE IF NOT EXISTS bookings (
-  id             SERIAL PRIMARY KEY,
-  user_id        INT REFERENCES users(id),
-  hotel_id       INT REFERENCES hotels(id),
-  room_id        INT REFERENCES rooms(id),
-  checkin_date   DATE NOT NULL,
-  checkout_date  DATE NOT NULL,
-  guests         INT DEFAULT 1,
-  amount         NUMERIC(10,2),
-  status         VARCHAR(20) DEFAULT 'pending', -- pending | confirmed | checked_in | checked_out | cancelled
-  created_at     TIMESTAMPTZ DEFAULT NOW()
+  id                 SERIAL PRIMARY KEY,
+  user_id            INT REFERENCES users(id),
+  hotel_id           INT REFERENCES hotels(id),
+  room_id            INT REFERENCES rooms(id),
+  owner_id           INT REFERENCES users(id),
+  checkin_date       DATE NOT NULL,
+  checkout_date      DATE NOT NULL,
+  guests             INT DEFAULT 1,
+  amount             NUMERIC(10,2),
+  customer_name      VARCHAR(150),
+  customer_email     VARCHAR(150),
+  customer_phone     VARCHAR(30),
+  booking_reference  VARCHAR(50),
+  source             VARCHAR(30) DEFAULT 'main_site', -- main_site | landing_page
+  status             VARCHAR(20) DEFAULT 'pending', -- pending | confirmed | checked_in | checked_out | cancelled
+  created_at         TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add new booking columns to existing tables (safe for existing DBs)
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS owner_id          INT REFERENCES users(id);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS customer_name     VARCHAR(150);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS customer_email    VARCHAR(150);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS customer_phone    VARCHAR(30);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS booking_reference VARCHAR(50);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS source            VARCHAR(30) DEFAULT 'main_site';
 
 -- Payments
 CREATE TABLE IF NOT EXISTS payments (
@@ -120,6 +158,12 @@ CREATE TABLE IF NOT EXISTS coupons (
 -- Seed default admin
 INSERT INTO admins (name, email, password)
 VALUES ('Super Admin', 'admin@hotelzilla.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
+ON CONFLICT DO NOTHING;
+-- default password: password
+
+-- Seed default hotel owner (password: partner123)
+INSERT INTO users (name, email, password, phone, role)
+VALUES ('Ravi Sharma', 'partner@hotelzilla.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+91 9876543210', 'hotel_owner')
 ON CONFLICT DO NOTHING;
 -- default password: password
 

@@ -23,13 +23,13 @@ exports.getHotelById = async (req, res, next) => {
   const { id } = req.params;
   try {
     const { rows } = await db.query(
-      `SELECT h.*, u.name AS owner_name, u.email AS owner_email,
+      `SELECT h.*, u.name AS owner_name, u.email AS owner_email, u.id AS owner_id,
               MIN(r.price_per_night) AS price_from
        FROM hotels h
        LEFT JOIN users u ON h.owner_id=u.id
        LEFT JOIN rooms r ON r.hotel_id=h.id
        WHERE h.id=$1
-       GROUP BY h.id, u.name, u.email`,
+       GROUP BY h.id, u.name, u.email, u.id`,
       [id]
     );
     if (!rows[0]) return res.status(404).json({ status: 'error', message: 'Hotel not found' });
@@ -58,21 +58,45 @@ exports.getAllHotels = async (req, res, next) => {
 
 exports.updateHotel = async (req, res, next) => {
   const { id } = req.params;
-  const { name, description, city, state, address, amenities, images,
+  const {
+    name, description, city, state, address, amenities, images,
     star_rating, check_in_time, check_out_time, cancellation_policy,
-    pets_allowed, smoking_allowed, breakfast_included, latitude, longitude } = req.body;
+    pets_allowed, smoking_allowed, breakfast_included, latitude, longitude,
+    // white-label fields
+    brand_name, brand_tagline, logo_text, logo_url, theme,
+    cover_image, landing_page_enabled, contact_email, contact_phone,
+    // landing page content
+    hero_heading, hero_subheading,
+    feature1_title, feature1_desc, feature2_title, feature2_desc,
+    feature3_title, feature3_desc, feature4_title, feature4_desc,
+    cta_heading, cta_subheading, footer_tagline,
+  } = req.body;
   try {
     const { rows } = await db.query(
       `UPDATE hotels SET
         name=$1, description=$2, city=$3, state=$4, address=$5, amenities=$6, images=$7,
         star_rating=$8, check_in_time=$9, check_out_time=$10, cancellation_policy=$11,
         pets_allowed=$12, smoking_allowed=$13, breakfast_included=$14,
-        latitude=$15, longitude=$16
-       WHERE id=$17 RETURNING *`,
+        latitude=$15, longitude=$16,
+        brand_name=$17, brand_tagline=$18, logo_text=$19, logo_url=$20, theme=$21,
+        cover_image=$22, landing_page_enabled=$23, contact_email=$24, contact_phone=$25,
+        hero_heading=$26, hero_subheading=$27,
+        feature1_title=$28, feature1_desc=$29, feature2_title=$30, feature2_desc=$31,
+        feature3_title=$32, feature3_desc=$33, feature4_title=$34, feature4_desc=$35,
+        cta_heading=$36, cta_subheading=$37, footer_tagline=$38
+       WHERE id=$39 RETURNING *`,
       [name, description, city, state || null, address, amenities || [], images || [],
         star_rating || 3, check_in_time || '12:00 PM', check_out_time || '11:00 AM',
         cancellation_policy || null, pets_allowed || false, smoking_allowed || false,
-        breakfast_included || false, latitude || null, longitude || null, id]
+        breakfast_included || false, latitude || null, longitude || null,
+        brand_name || null, brand_tagline || null, logo_text || null, logo_url || null,
+        theme || 'emerald', cover_image || null,
+        landing_page_enabled || false, contact_email || null, contact_phone || null,
+        hero_heading || null, hero_subheading || null,
+        feature1_title || null, feature1_desc || null, feature2_title || null, feature2_desc || null,
+        feature3_title || null, feature3_desc || null, feature4_title || null, feature4_desc || null,
+        cta_heading || null, cta_subheading || null, footer_tagline || null,
+        id]
     );
     if (!rows[0]) return res.status(404).json({ status: 'error', message: 'Hotel not found' });
     res.json(rows[0]);

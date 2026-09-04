@@ -30,6 +30,7 @@ app.use("/api/partner/auth", rateLimit({
   message: { status: "error", code: "RATE_LIMITED", message: "Too many login attempts." },
 }));
 
+app.use("/api/public",           require("./routes/public"));
 app.use("/api/partner/auth",     require("./routes/auth"));
 app.use("/api/partner/hotels",   require("./routes/hotels"));
 app.use("/api/partner/bookings", require("./routes/bookings"));

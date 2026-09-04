@@ -1,5 +1,5 @@
-import { useLocation } from 'react-router-dom'
-import { Bell } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Bell, LogOut } from 'lucide-react'
 import { WHITE_LABEL } from '../lib/whiteLabel'
 
 const TITLES = {
@@ -14,7 +14,13 @@ const TITLES = {
 
 export default function Topbar() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const title = TITLES[pathname] || 'Partner Portal'
+
+  const logout = () => {
+    localStorage.removeItem('partner_auth')
+    navigate('/login')
+  }
 
   return (
     <div className="topbar">
@@ -24,6 +30,9 @@ export default function Topbar() {
         <button className="btn btn-ghost btn-sm" style={{ position: 'relative' }}>
           <Bell size={18} />
           <span style={{ position: 'absolute', top: 2, right: 4, width: 8, height: 8, background: 'var(--error)', borderRadius: '50%' }} />
+        </button>
+        <button className="btn btn-ghost btn-sm" onClick={logout} title="Logout">
+          <LogOut size={16} />
         </button>
       </div>
     </div>

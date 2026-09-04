@@ -119,12 +119,18 @@ export const reviewsApi = {
   delete: (id)                   => api.delete(`/api/admin/reviews/${id}`),
 }
 
-// Hotel owners — uses customers endpoint filtered by role (hotel_owner)
-// The admin-service returns users with role. We query customers endpoint
-// and the backend already scopes by role='customer'. For owners we call
-// a dedicated endpoint we'll add, or reuse customers with a role param.
 export const ownersApi = {
   list:      (page = 1, limit = 20) => api.get(`/api/admin/customers?page=${page}&limit=${limit}&role=hotel_owner`),
   toggle:    (id)                   => api.patch(`/api/admin/customers/${id}/toggle`),
   getById:   (id)                   => api.get(`/api/admin/customers/owners/${id}`),
+  setPassword: (id, password)       => api.patch(`/api/admin/owners/${id}/password`, { password }),
+}
+
+export const whiteLabelApi = {
+  // list all approved hotels with owner info for the dropdown
+  listHotels: () => api.get('/api/admin/hotels?page=1&limit=100'),
+  // save full white-label config for a hotel
+  save: (hotelId, body) => api.patch(`/api/admin/hotels/${hotelId}`, body),
+  // set partner account password
+  setPartnerPassword: (ownerId, password) => api.patch(`/api/admin/owners/${ownerId}/password`, { password }),
 }

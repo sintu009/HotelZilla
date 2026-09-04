@@ -2,6 +2,10 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../config/db");
 
+// In-memory token blacklist for logout (use Redis in production)
+const blacklist = new Set();
+exports.blacklist = blacklist;
+
 exports.register = async (req, res, next) => {
   const { name, email, password, phone } = req.body;
   try {
@@ -27,4 +31,21 @@ exports.login = async (req, res, next) => {
     const token = jwt.sign({ id: user.id, role: "customer" }, process.env.JWT_SECRET, { expiresIn: "7d" });
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) { next(err); }
+};
+
+exports.me = async (req, res, next) => {
+  try {
+    const { rows } = await db.query(
+      "SELECT id, name, email, phone FROM users WHERE id=$1",
+      [req.user.id]
+    );
+    if (!rows[0]) return res.status(404).json({ status: "error", code: "NOT_FOUND", message: "User not found" });
+    res.json(rows[0]);
+  } catch (err) { next(err); }
+};
+
+exports.logout = (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (token) blacklist.add(token);
+  res.json({ message: "Logged out successfully" });
 };

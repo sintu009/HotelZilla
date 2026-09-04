@@ -18,12 +18,16 @@ export default function HotelDetail() {
   const [hotel, setHotel]               = useState(null)
   const [loading, setLoading]           = useState(true)
   const [rooms, setRooms]               = useState([])
-  const [tab, setTab]                   = useState('info') // info | photos | rooms
+  const [tab, setTab]                   = useState('info') // info | photos | rooms | whitelabel
 
   // info edit
   const [editInfo, setEditInfo]         = useState(false)
   const [infoForm, setInfoForm]         = useState({})
   const [savingInfo, setSavingInfo]     = useState(false)
+
+  // white-label
+  const [wlForm, setWlForm]             = useState({})
+  const [savingWl, setSavingWl]         = useState(false)
 
   // photos
   const [images, setImages]             = useState([])
@@ -53,8 +57,30 @@ export default function HotelDetail() {
       setHotel(hotelRes)
       setImages(hotelRes.images || [])
       setRooms(roomsRes || [])
+      setWlForm({
+        brand_name: hotelRes.brand_name || hotelRes.name || '',
+        brand_tagline: hotelRes.brand_tagline || '',
+        logo_text: hotelRes.logo_text || (hotelRes.name || '').slice(0, 2).toUpperCase(),
+        logo_url: hotelRes.logo_url || '',
+        theme: hotelRes.theme || 'emerald',
+        landing_page_enabled: hotelRes.landing_page_enabled || false,
+        cover_image: hotelRes.cover_image || (hotelRes.images || [])[0] || '',
+        support_email: hotelRes.contact_email || '',
+        support_phone: hotelRes.contact_phone || '',
+      })
     }).catch(() => {}).finally(() => setLoading(false))
   }, [id])
+
+  const saveWhiteLabel = async (e) => {
+    e.preventDefault()
+    setSavingWl(true)
+    try {
+      await hotelsApi.update(id, { ...wlForm })
+      setHotel(h => ({ ...h, ...wlForm }))
+      toast.success('White Label Saved', 'Landing page branding updated.')
+    } catch (err) { toast.error('Error', err.message) }
+    finally { setSavingWl(false) }
+  }
 
   const saveImages = async (imgs) => {
     setSavingImgs(true)
@@ -254,7 +280,7 @@ export default function HotelDetail() {
 
       {/* Tabs */}
       <div className="hotel-tabs" style={{ marginBottom: 20 }}>
-        {[['info','Info'],['photos','Photos'],['rooms','Rooms']].map(([key, label]) => (
+        {[['info','Info'],['photos','Photos'],['rooms','Rooms'],['whitelabel','White Label']].map(([key, label]) => (
           <button key={key} className={`hotel-tab${tab === key ? ' active' : ''}`} onClick={() => setTab(key)}>
             {label}{key === 'photos' ? ` (${images.length})` : key === 'rooms' ? ` (${rooms.length})` : ''}
           </button>
@@ -583,6 +609,78 @@ export default function HotelDetail() {
               </div>
             )
           }
+        </div>
+      )}
+
+      {/* ── WHITE LABEL TAB ── */}
+      {tab === 'whitelabel' && (
+        <div className="card" style={{ padding: 24 }}>
+          <strong style={{ display: 'block', marginBottom: 4 }}>Landing Page & White Label</strong>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 20 }}>
+            Configure the hotel's public landing page branding. Once saved, the hotel partner's landing page will reflect these settings.
+          </p>
+          <form onSubmit={saveWhiteLabel} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="form-group">
+                <label className="label">Enable Landing Page</label>
+                <select className="input" value={String(wlForm.landing_page_enabled)}
+                  onChange={e => setWlForm(p => ({ ...p, landing_page_enabled: e.target.value === 'true' }))}>
+                  <option value="false">Disabled</option>
+                  <option value="true">Enabled</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="label">Theme</label>
+                <select className="input" value={wlForm.theme || 'emerald'}
+                  onChange={e => setWlForm(p => ({ ...p, theme: e.target.value }))}>
+                  <option value="emerald">Emerald (Green)</option>
+                  <option value="ocean">Ocean (Blue)</option>
+                  <option value="rose">Rose (Pink)</option>
+                  <option value="amber">Amber (Gold)</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="label">Brand Name</label>
+                <input className="input" value={wlForm.brand_name || ''}
+                  onChange={e => setWlForm(p => ({ ...p, brand_name: e.target.value }))} />
+              </div>
+              <div className="form-group">
+                <label className="label">Brand Tagline</label>
+                <input className="input" placeholder="e.g. Luxury Redefined" value={wlForm.brand_tagline || ''}
+                  onChange={e => setWlForm(p => ({ ...p, brand_tagline: e.target.value }))} />
+              </div>
+              <div className="form-group">
+                <label className="label">Logo Text (2–3 letters)</label>
+                <input className="input" maxLength={3} value={wlForm.logo_text || ''}
+                  onChange={e => setWlForm(p => ({ ...p, logo_text: e.target.value.toUpperCase() }))} />
+              </div>
+              <div className="form-group">
+                <label className="label">Logo URL (optional)</label>
+                <input className="input" placeholder="https://..." value={wlForm.logo_url || ''}
+                  onChange={e => setWlForm(p => ({ ...p, logo_url: e.target.value }))} />
+              </div>
+              <div className="form-group">
+                <label className="label">Cover Image URL</label>
+                <input className="input" placeholder="https://..." value={wlForm.cover_image || ''}
+                  onChange={e => setWlForm(p => ({ ...p, cover_image: e.target.value }))} />
+              </div>
+              <div className="form-group">
+                <label className="label">Support Email</label>
+                <input className="input" type="email" value={wlForm.support_email || ''}
+                  onChange={e => setWlForm(p => ({ ...p, support_email: e.target.value }))} />
+              </div>
+              <div className="form-group">
+                <label className="label">Support Phone</label>
+                <input className="input" value={wlForm.support_phone || ''}
+                  onChange={e => setWlForm(p => ({ ...p, support_phone: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <button type="submit" className="btn btn-primary btn-sm" disabled={savingWl}>
+                {savingWl ? <span className="spinner" /> : 'Save White Label Settings'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 

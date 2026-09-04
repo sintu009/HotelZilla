@@ -1,14 +1,21 @@
 const db = require("../config/db");
 
 exports.registerHotel = async (req, res, next) => {
-  const { name, city, address, description, amenities, contact_name, contact_email, contact_phone } = req.body;
-  if (!name || !city || !contact_name || !contact_email)
-    return res.status(400).json({ status: 'error', message: 'name, city, contact_name and contact_email are required' });
+  const { name, city, state, address, description, amenities, contact_email, contact_phone,
+          star_rating, total_rooms, price_from, cover_image, images } = req.body;
+  if (!name || !city)
+    return res.status(400).json({ status: 'error', message: 'name and city are required' });
+  const owner_id = req.user?.id || null;
   try {
     const { rows } = await db.query(
-      `INSERT INTO hotels (name, city, address, description, amenities, images, status)
-       VALUES ($1,$2,$3,$4,$5,$6,'pending') RETURNING id, name, city, status`,
-      [name, city, address || null, description || null, amenities || [], []]
+      `INSERT INTO hotels
+        (name, city, state, address, description, amenities, images, status, owner_id,
+         star_rating, contact_email, contact_phone)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,'pending',$8,$9,$10,$11)
+       RETURNING id, name, city, status, owner_id`,
+      [name, city, state || null, address || null, description || null,
+       amenities || [], images || [], owner_id,
+       star_rating || 3, contact_email || null, contact_phone || null]
     );
     res.status(201).json({ message: 'Registration submitted. Our team will review and contact you shortly.', hotel: rows[0] });
   } catch (err) { next(err); }

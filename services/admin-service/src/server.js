@@ -70,6 +70,7 @@ app.use("/api/admin/dashboard", require("./routes/dashboard"));
 app.use("/api/admin/hotels",    require("./routes/hotels"));
 app.use("/api/admin/bookings",  require("./routes/bookings"));
 app.use("/api/admin/customers", require("./routes/customers"));
+app.use("/api/admin/owners",    require("./routes/owners"));
 app.use("/api/admin/payments",  require("./routes/payments"));
 app.use("/api/admin/coupons",   require("./routes/coupons"));
 app.use("/api/admin/reviews",   require("./routes/reviews"));

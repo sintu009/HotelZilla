@@ -20,6 +20,7 @@ export default function Bookings() {
   const toast = useToast()
   const [search, setSearch]               = useState('')
   const [statusFilter, setStatusFilter]   = useState('')
+  const [sourceFilter, setSourceFilter]   = useState('')
   const [selected, setSelected]           = useState(null)
   const [confirmCancel, setConfirmCancel] = useState(null)
   const [acting, setActing]               = useState(false)
@@ -30,8 +31,12 @@ export default function Bookings() {
   const rows = allRows.filter(b => {
     const ms  = !search || String(b.id).includes(search) || b.hotel_name?.toLowerCase().includes(search.toLowerCase()) || b.customer_name?.toLowerCase().includes(search.toLowerCase())
     const mst = !statusFilter || b.status === statusFilter
-    return ms && mst
+    const msr = !sourceFilter || b.source === sourceFilter
+    return ms && mst && msr
   })
+
+  const sourceLabel = s => s === 'landing_page' ? 'Landing Page' : s === 'main_site' ? 'Main Site' : 'Direct'
+  const sourceBadge = s => s === 'landing_page' ? 'badge-info' : 'badge-neutral'
 
   const updateStatus = async (booking, newStatus) => {
     setActing(true)
@@ -70,12 +75,17 @@ export default function Bookings() {
           <option value="checked_out">Checked Out</option>
           <option value="cancelled">Cancelled</option>
         </select>
+        <select className="input" style={{ width: 160 }} value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}>
+          <option value="">All Sources</option>
+          <option value="landing_page">Landing Page</option>
+          <option value="main_site">Main Site</option>
+        </select>
       </div>
 
       <div className="card">
         <div className="table-wrapper">
           <table className="table">
-            <thead><tr><th>#ID</th><th>Hotel</th><th>Guest</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>#ID</th><th>Hotel</th><th>Guest</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Source</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {loading
                 ? <tr><td colSpan={8} style={{ textAlign: 'center' }}><span className="spinner" /></td></tr>
@@ -91,6 +101,7 @@ export default function Bookings() {
                         <td>{formatDate(b.checkin_date)}</td>
                         <td>{formatDate(b.checkout_date)}</td>
                         <td>{formatPrice(b.amount)}</td>
+                        <td><span className={`badge ${sourceBadge(b.source)}`}>{sourceLabel(b.source)}</span></td>
                         <td><span className={`badge ${STATUS_BADGE[b.status] || 'badge-neutral'}`}>{b.status}</span></td>
                         <td><button className="btn btn-ghost btn-sm" onClick={() => setSelected(b)}><Eye size={14} /></button></td>
                       </tr>
